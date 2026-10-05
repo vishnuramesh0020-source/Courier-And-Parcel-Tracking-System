@@ -1,19 +1,36 @@
-# React + Vite
+# Global Connect Couriers - Courier & Parcel Tracking System
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A modern, high-tech logistics and parcel tracking web application built with React 19, Vite, Tailwind CSS, React Hook Form, and React Toastify.
 
-Currently, two official plugins are available:
+## Module 1: Authentication & Access Portal
+- **High-Tech Aesthetic**: Dark navy digital background featuring a glowing global logistics network and 3D cyan orbital Earth globe icon.
+- **Card-Free Floating Design**: Minimalist, sleek UI with border-glow inputs and solid action buttons floating directly over the canvas.
+- **User Authentication**:
+  - Secure Login with show/hide password toggle and quick-demo shortcuts.
+  - User Registration with role selection (`Courier Client`, `Courier Agent`, `Fleet Manager`).
+  - Forgot Password & 2-step verification code reset flow.
+  - Persistent sessions and user directory saved in `localStorage`.
+  - Protected Dashboard route (`/dashboard`) guarded by `ProtectedRoute`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Demo Accounts
+Quick-access buttons are available on the login page:
+- **Administrator**: `admin@globalconnect.com` / `Password123!`
+- **Courier Agent**: `agent@globalconnect.com` / `Password123!`
+- **Client**: `client@globalconnect.com` / `Password123!`
 
-## React Compiler
+## Getting Started
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+### Development
+```bash
+npm run dev
+```
 
-Note: This will impact Vite dev & build performances.
-You can also try [the experimental native React Compiler support in plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md#rust-react-compiler) by using `compiler: true` in the plugin options instead of using the Babel plugin.
+### Production Build
+```bash
+npm run build
+```
 
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+### Linting
+```bash
+npm run lint
+```
