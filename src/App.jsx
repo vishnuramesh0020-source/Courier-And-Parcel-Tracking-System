@@ -7,6 +7,8 @@ import AuthPage from './pages/AuthPage'
 import DashboardPage from './pages/DashboardPage'
 import ShipmentsPage from './pages/ShipmentsPage'
 import ShipmentDetailsPage from './pages/ShipmentDetailsPage'
+import CustomersPage from './pages/CustomersPage'
+import CustomerProfilePage from './pages/CustomerProfilePage'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 
 export default function App() {
@@ -39,6 +41,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customers"
+            element={
+              <ProtectedRoute>
+                <CustomersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/customers/:id"
+            element={
+              <ProtectedRoute>
+                <CustomerProfilePage />
               </ProtectedRoute>
             }
           />

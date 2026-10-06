@@ -9,6 +9,7 @@ import ShipmentModal from '../components/dashboard/ShipmentModal'
 import TrackModal from '../components/dashboard/TrackModal'
 import CustomerModal from '../components/dashboard/CustomerModal'
 import { createShipment } from '../services/shipmentApi'
+import { createCustomer } from '../services/customerService'
 import {
   Package,
   Truck,
@@ -179,7 +180,7 @@ export default function DashboardPage() {
       },
       ...prev,
     ])
-    // Persist to Module 3 API & LocalStorage
+    // Persist to Shipment API & LocalStorage
     createShipment({
       trackingNumber: newShipment.id,
       senderName: newShipment.origin,
@@ -217,6 +218,15 @@ export default function DashboardPage() {
       },
       ...prev,
     ])
+    createCustomer({
+      customerName: newCustomer.name,
+      email: newCustomer.email,
+      mobileNumber: newCustomer.phone,
+      address: newCustomer.company,
+      city: 'Hub Center',
+      postalCode: '10001',
+    }).catch(() => {})
+
     toast.success(`Customer ${newCustomer.name} successfully registered!`)
   }
 

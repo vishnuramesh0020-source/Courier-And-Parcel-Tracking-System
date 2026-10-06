@@ -248,6 +248,9 @@ export const saveLocalShipments = (shipments) => {
   }
 }
 
+// Alias for customer profile linkages
+export const getStoredShipments = getLocalShipments
+
 /**
  * 1. GET ALL SHIPMENTS
  * Makes a real HTTP GET call to JSONPlaceholder /posts,

@@ -4,6 +4,7 @@ import GlobeIcon from './GlobeIcon'
 import {
   Package,
   LayoutDashboard,
+  Users,
   LogOut,
   User,
   Shield,
@@ -19,6 +20,7 @@ export default function Navbar({ onSearch }) {
 
   const isDashboard = location.pathname === '/dashboard'
   const isShipments = location.pathname.startsWith('/shipments')
+  const isCustomers = location.pathname.startsWith('/customers')
 
   return (
     <header className="border-b border-cyan-500/30 bg-[#091526]/95 backdrop-blur-md sticky top-0 z-30 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
@@ -49,6 +51,18 @@ export default function Navbar({ onSearch }) {
           >
             <LayoutDashboard className="w-3.5 h-3.5" />
             <span>Dashboard</span>
+          </Link>
+
+          <Link
+            to="/customers"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+              isCustomers
+                ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Customers</span>
           </Link>
 
           <Link
