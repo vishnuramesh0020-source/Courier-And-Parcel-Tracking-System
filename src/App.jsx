@@ -5,6 +5,8 @@ import 'react-toastify/dist/ReactToastify.css'
 import { AuthProvider } from './context/AuthContext'
 import AuthPage from './pages/AuthPage'
 import DashboardPage from './pages/DashboardPage'
+import ShipmentsPage from './pages/ShipmentsPage'
+import ShipmentDetailsPage from './pages/ShipmentDetailsPage'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 
 export default function App() {
@@ -37,6 +39,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/shipments"
+            element={
+              <ProtectedRoute>
+                <ShipmentsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/shipments/:id"
+            element={
+              <ProtectedRoute>
+                <ShipmentDetailsPage />
               </ProtectedRoute>
             }
           />

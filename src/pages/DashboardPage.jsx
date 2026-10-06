@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useAuth } from '../context/useAuth'
-import GlobeIcon from '../components/common/GlobeIcon'
+import Navbar from '../components/common/Navbar'
 import StatCard from '../components/dashboard/StatCard'
 import CyberWorldMap from '../components/dashboard/CyberWorldMap'
 import QuickActionCards from '../components/dashboard/QuickActionCards'
@@ -8,24 +8,19 @@ import RecentActivities from '../components/dashboard/RecentActivities'
 import ShipmentModal from '../components/dashboard/ShipmentModal'
 import TrackModal from '../components/dashboard/TrackModal'
 import CustomerModal from '../components/dashboard/CustomerModal'
+import { createShipment } from '../services/shipmentApi'
 import {
-  LogOut,
-  Search,
   Package,
   Truck,
   CheckCircle2,
   Clock,
   Users,
   Calendar,
-  Shield,
-  User,
-  Bell,
-  Grid,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
 
   // 1. Metric Stats State (7 Core Courier Metrics)
   const [stats, setStats] = useState({
@@ -155,7 +150,6 @@ export default function DashboardPage() {
   const [isCustomerModalOpen, setIsCustomerModalOpen] = useState(false)
   const [isTrackModalOpen, setIsTrackModalOpen] = useState(false)
   const [selectedTrackingCode, setSelectedTrackingCode] = useState('')
-  const [headerSearch, setHeaderSearch] = useState('')
 
   // Quick Action Callbacks
   const handleOpenTracking = (code = '') => {
@@ -185,6 +179,23 @@ export default function DashboardPage() {
       },
       ...prev,
     ])
+    // Persist to Module 3 API & LocalStorage
+    createShipment({
+      trackingNumber: newShipment.id,
+      senderName: newShipment.origin,
+      receiverName: newShipment.recipient,
+      pickupAddress: newShipment.origin,
+      deliveryAddress: newShipment.destination,
+      parcelWeight: parseFloat(newShipment.weight) || 12.0,
+      parcelType: 'Standard Box',
+      shippingDate: new Date().toISOString().split('T')[0],
+      expectedDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split('T')[0],
+      deliveryStatus: 'In Transit',
+      carrier: newShipment.carrier,
+    }).catch(() => {})
+
     toast.success(`Consignment ${newShipment.id} successfully created!`)
   }
 
@@ -241,100 +252,10 @@ export default function DashboardPage() {
       <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[140px] pointer-events-none z-0" />
 
       {/* =========================================================
-          TOP CYBER COMMAND NAVIGATION BAR (Exact Match to Image 2)
+      {/* =========================================================
+          TOP CYBER COMMAND NAVIGATION BAR
           ========================================================= */}
-      <header className="border-b border-cyan-500/30 bg-[#091526]/95 backdrop-blur-md sticky top-0 z-30 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
-          {/* Brand Identity with 3D Orbital Globe Icon */}
-          <div className="flex items-center gap-3">
-            <GlobeIcon className="w-9 h-9" />
-            <div>
-              <div className="text-base sm:text-lg font-extrabold uppercase tracking-tight text-white leading-none">
-                Global Connect Couriers
-              </div>
-              <div className="text-[11px] font-semibold text-cyan-400 mt-1 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_6px_#38bdf8]" />
-                Cyber Command & Tracking Center
-              </div>
-            </div>
-          </div>
-
-          {/* Center Search Pill matching Image 2 */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-6">
-            <div className="relative w-full">
-              <Search className="w-4 h-4 text-cyan-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                value={headerSearch}
-                onChange={(e) => setHeaderSearch(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && headerSearch.trim()) {
-                    handleOpenTracking(headerSearch.trim())
-                  }
-                }}
-                placeholder="Search tracking code, courier, or city hub..."
-                className="w-full h-9.5 pl-10 pr-4 text-xs rounded-xl bg-[#050b14] border border-cyan-500/40 text-white placeholder-slate-400 outline-none focus:border-cyan-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.25)]"
-              />
-            </div>
-          </div>
-
-          {/* Right Action Icons & Profile matching Image 2 */}
-          <div className="flex items-center gap-3 justify-end">
-            {/* Grid menu icon */}
-            <button
-              onClick={() => toast.info('System Telemetry: All 12 Hubs Connected.')}
-              className="p-2 rounded-xl bg-[#050b14] border border-cyan-500/30 text-cyan-400 hover:text-white hover:border-cyan-300 transition-colors cursor-pointer hidden sm:block"
-              title="Hub Overview"
-            >
-              <Grid className="w-4 h-4" />
-            </button>
-
-            {/* Notification bell with red alert dot */}
-            <button
-              onClick={() => toast.info('No critical delays. 99.2% on-time.')}
-              className="relative p-2 rounded-xl bg-[#050b14] border border-cyan-500/30 text-cyan-400 hover:text-white hover:border-cyan-300 transition-colors cursor-pointer"
-              title="Alert Notifications"
-            >
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e]" />
-            </button>
-
-            {/* User Profile matching Image 2 */}
-            <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-[#050b14] border border-cyan-500/40">
-              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-xs text-white shadow-sm overflow-hidden">
-                {user?.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.fullName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="w-4 h-4 text-white" />
-                )}
-              </div>
-              <div className="text-left text-xs hidden sm:block">
-                <div className="font-bold text-white leading-none">
-                  {user?.fullName || 'Alex Mercer'}
-                </div>
-                <div className="text-[10px] text-cyan-400 flex items-center gap-1 mt-0.5">
-                  <Shield className="w-2.5 h-2.5 text-cyan-400" />
-                  <span>{user?.role || 'Dispatcher'}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Logout Button */}
-            <button
-              onClick={logout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-500/40 text-xs font-bold uppercase transition-all cursor-pointer shadow-sm"
-              title="Logout from command"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navbar onSearch={handleOpenTracking} />
 
       {/* =========================================================
           MAIN CYBER COMMAND DASHBOARD (Full Width, No Side Space)
