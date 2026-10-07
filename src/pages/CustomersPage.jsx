@@ -62,8 +62,29 @@ export default function CustomersPage() {
   const [pageSize, setPageSize] = useState(8)
   const [copiedId, setCopiedId] = useState(null)
 
-  // Load customers
-  const loadCustomersData = async () => {
+  // Initial load
+  useEffect(() => {
+    let ignore = false
+    fetchCustomers()
+      .then((res) => {
+        if (!ignore) {
+          setCustomers(res.data)
+          setLoading(false)
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          toast.error('Failed to load customers from registry.')
+          setLoading(false)
+        }
+      })
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  // Manual refresh handler
+  const handleRefresh = async () => {
     try {
       setLoading(true)
       const res = await fetchCustomers()
@@ -74,25 +95,6 @@ export default function CustomersPage() {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    let isMounted = true
-    const load = async () => {
-      try {
-        setLoading(true)
-        const res = await fetchCustomers()
-        if (isMounted) setCustomers(res.data)
-      } catch {
-        if (isMounted) toast.error('Failed to load customers from registry.')
-      } finally {
-        if (isMounted) setLoading(false)
-      }
-    }
-    load()
-    return () => {
-      isMounted = false
-    }
-  }, [])
 
   // Unique cities list for filtering
   const uniqueCities = useMemo(() => {
@@ -298,7 +300,7 @@ export default function CustomersPage() {
             {/* Reload button */}
             <button
               type="button"
-              onClick={loadCustomersData}
+              onClick={handleRefresh}
               disabled={loading}
               title="Refresh Customers"
               className="p-2 rounded-xl bg-[#091526] border border-cyan-500/30 text-cyan-400 hover:text-white hover:border-cyan-300 transition-colors cursor-pointer disabled:opacity-50"

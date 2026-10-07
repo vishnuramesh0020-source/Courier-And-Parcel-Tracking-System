@@ -11,6 +11,7 @@ import {
   Bell,
   Radio,
   Search,
+  Radar,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -19,6 +20,7 @@ export default function Navbar({ onSearch }) {
   const location = useLocation()
 
   const isDashboard = location.pathname === '/dashboard'
+  const isTracking = location.pathname.startsWith('/tracking')
   const isShipments = location.pathname.startsWith('/shipments')
   const isCustomers = location.pathname.startsWith('/customers')
 
@@ -54,15 +56,15 @@ export default function Navbar({ onSearch }) {
           </Link>
 
           <Link
-            to="/customers"
+            to="/tracking"
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
-              isCustomers
+              isTracking
                 ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 shadow-[0_0_12px_rgba(6,182,212,0.3)]'
                 : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
             }`}
           >
-            <Users className="w-3.5 h-3.5" />
-            <span>Customers</span>
+            <Radar className="w-3.5 h-3.5" />
+            <span>Tracking</span>
           </Link>
 
           <Link
@@ -75,6 +77,18 @@ export default function Navbar({ onSearch }) {
           >
             <Package className="w-3.5 h-3.5" />
             <span>Shipments</span>
+          </Link>
+
+          <Link
+            to="/customers"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+              isCustomers
+                ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            <span>Customers</span>
           </Link>
         </nav>
 
@@ -149,6 +163,54 @@ export default function Navbar({ onSearch }) {
             <span className="hidden sm:inline">Logout</span>
           </button>
         </div>
+      </div>
+
+      {/* Mobile Navigation Strip */}
+      <div className="md:hidden flex items-center justify-around border-t border-cyan-500/20 bg-[#060c18] px-2 py-1.5">
+        <Link
+          to="/dashboard"
+          className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all ${
+            isDashboard
+              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40'
+              : 'text-slate-400'
+          }`}
+        >
+          <LayoutDashboard className="w-3 h-3" />
+          <span>Dashboard</span>
+        </Link>
+        <Link
+          to="/tracking"
+          className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all ${
+            isTracking
+              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40'
+              : 'text-slate-400'
+          }`}
+        >
+          <Radar className="w-3 h-3" />
+          <span>Tracking</span>
+        </Link>
+        <Link
+          to="/shipments"
+          className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all ${
+            isShipments
+              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40'
+              : 'text-slate-400'
+          }`}
+        >
+          <Package className="w-3 h-3" />
+          <span>Shipments</span>
+        </Link>
+        <Link
+          to="/customers"
+          className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all ${
+            isCustomers
+              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40'
+              : 'text-slate-400'
+          }`}
+        >
+          <Users className="w-3 h-3" />
+          <span>Customers</span>
+        </Link>
       </div>
     </header>
   )

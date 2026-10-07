@@ -1,6 +1,6 @@
 /**
  * Customer Service & Storage Engine
- * Module 4: Customer Management
+ * Customer Management Service Engine
  * Provides complete CRUD operations with localStorage persistence
  * and realistic courier customer seed data.
  */

@@ -262,7 +262,6 @@ export default function DashboardPage() {
       <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[140px] pointer-events-none z-0" />
 
       {/* =========================================================
-      {/* =========================================================
           TOP CYBER COMMAND NAVIGATION BAR
           ========================================================= */}
       <Navbar onSearch={handleOpenTracking} />

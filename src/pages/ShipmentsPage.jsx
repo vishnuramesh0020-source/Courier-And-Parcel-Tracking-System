@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import Navbar from '../components/common/Navbar'
 import ShipmentFormModal from '../components/shipments/ShipmentFormModal'
 import DeleteConfirmModal from '../components/shipments/DeleteConfirmModal'
@@ -24,6 +25,7 @@ import {
   Grid,
   List,
   ExternalLink,
+  Radar,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -77,13 +79,37 @@ export default function ShipmentsPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(8)
 
-  // Load shipments on mount
-  const loadShipments = async () => {
+  // Initial load
+  useEffect(() => {
+    let ignore = false
+    fetchShipments()
+      .then((res) => {
+        if (!ignore) {
+          setShipments(res.data)
+          setError(null)
+          setLoading(false)
+        }
+      })
+      .catch((err) => {
+        if (!ignore) {
+          console.error('Failed to load shipments:', err)
+          setError(err.message || 'Failed to fetch shipments from Third-Party API.')
+          toast.error('Network Error: Could not connect to API.')
+          setLoading(false)
+        }
+      })
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  // Manual refresh handler
+  const handleRefresh = async () => {
     try {
       setLoading(true)
-      setError(null)
       const res = await fetchShipments()
       setShipments(res.data)
+      setError(null)
     } catch (err) {
       console.error('Failed to load shipments:', err)
       setError(err.message || 'Failed to fetch shipments from Third-Party API.')
@@ -92,32 +118,6 @@ export default function ShipmentsPage() {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    let isMounted = true
-    const load = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const res = await fetchShipments()
-        if (isMounted) {
-          setShipments(res.data)
-        }
-      } catch (err) {
-        if (isMounted) {
-          console.error('Failed to load shipments:', err)
-          setError(err.message || 'Failed to fetch shipments from Third-Party API.')
-          toast.error('Network Error: Could not connect to API.')
-        }
-      } finally {
-        if (isMounted) setLoading(false)
-      }
-    }
-    load()
-    return () => {
-      isMounted = false
-    }
-  }, [])
 
   // =========================================================
   // CRUD HANDLERS
@@ -344,7 +344,7 @@ export default function ShipmentsPage() {
             {/* Reload button */}
             <button
               type="button"
-              onClick={loadShipments}
+              onClick={handleRefresh}
               disabled={loading}
               title="Refresh Shipments from API"
               className="p-2 rounded-xl bg-[#091526] border border-cyan-500/30 text-cyan-400 hover:text-white hover:border-cyan-300 transition-colors cursor-pointer disabled:opacity-50"
@@ -587,7 +587,7 @@ export default function ShipmentsPage() {
             </div>
             <button
               type="button"
-              onClick={loadShipments}
+              onClick={handleRefresh}
               className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-colors cursor-pointer shrink-0"
             >
               Retry API Request
@@ -702,6 +702,15 @@ export default function ShipmentsPage() {
                           {/* Actions */}
                           <td className="py-3.5 px-4 text-right">
                             <div className="flex items-center justify-end gap-1.5">
+                              {/* Live Radar */}
+                              <Link
+                                to={`/tracking?code=${encodeURIComponent(s.trackingNumber || s.id)}`}
+                                title="Track Live GPS Radar"
+                                className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 hover:bg-cyan-500/25 transition-colors cursor-pointer"
+                              >
+                                <Radar className="w-3.5 h-3.5" />
+                              </Link>
+
                               {/* View Details */}
                               <button
                                 type="button"
@@ -809,14 +818,25 @@ export default function ShipmentsPage() {
 
                     {/* Card Actions */}
                     <div className="mt-3 pt-3 border-t border-cyan-500/20 flex items-center justify-between">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenDetails(s)}
-                        className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Inspect</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          to={`/tracking?code=${encodeURIComponent(s.trackingNumber || s.id)}`}
+                          title="Track Live GPS Radar"
+                          className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 cursor-pointer"
+                        >
+                          <Radar className="w-3.5 h-3.5" />
+                          <span>Radar</span>
+                        </Link>
+                        <span className="text-slate-600">•</span>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenDetails(s)}
+                          className="text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1 cursor-pointer"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Inspect</span>
+                        </button>
+                      </div>
 
                       <div className="flex items-center gap-1">
                         <button

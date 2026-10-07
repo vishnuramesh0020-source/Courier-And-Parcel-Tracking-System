@@ -22,6 +22,7 @@ import {
   Share2,
   Loader2,
   AlertCircle,
+  Radar,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -203,6 +204,14 @@ export default function ShipmentDetailsPage() {
 
               {/* Action Buttons */}
               <div className="flex items-center gap-2 flex-wrap">
+                <Link
+                  to={`/tracking?code=${encodeURIComponent(shipment.trackingNumber || shipment.id)}`}
+                  title="Track Live GPS Radar"
+                  className="px-3.5 py-2 rounded-xl bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/25 transition-all text-xs font-semibold flex items-center gap-1.5 cursor-pointer shadow-sm"
+                >
+                  <Radar className="w-4 h-4" />
+                  <span>Live Radar</span>
+                </Link>
                 <button
                   type="button"
                   onClick={handlePrint}

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   X,
   Package,
@@ -13,6 +14,7 @@ import {
   Truck,
   ShieldCheck,
   Share2,
+  ExternalLink,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
@@ -385,6 +387,26 @@ export default function ShipmentDetailsModal({
               WAYBILL AUTHENTICATION KEY: {shipment.trackingNumber || shipment.id}
             </div>
           </div>
+        </div>
+
+        {/* Sticky Footer */}
+        <div className="flex items-center justify-between px-5 py-3 border-t border-cyan-500/20 bg-[#07101e]/90 shrink-0">
+          <Link
+            to={`/tracking?code=${encodeURIComponent(shipment.trackingNumber || shipment.id)}`}
+            onClick={onClose}
+            className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 transition-colors"
+          >
+            <span>Open Dedicated Live GPS Radar</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-semibold rounded-xl bg-white/[0.04] border border-white/10 text-slate-300 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+          >
+            Close Manifest
+          </button>
         </div>
       </div>
     </div>

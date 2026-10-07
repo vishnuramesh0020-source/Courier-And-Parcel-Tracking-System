@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
 
 import { AuthProvider } from './context/AuthContext'
 import AuthPage from './pages/AuthPage'
@@ -9,6 +8,7 @@ import ShipmentsPage from './pages/ShipmentsPage'
 import ShipmentDetailsPage from './pages/ShipmentDetailsPage'
 import CustomersPage from './pages/CustomersPage'
 import CustomerProfilePage from './pages/CustomerProfilePage'
+import TrackingPage from './pages/TrackingPage'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 
 export default function App() {
@@ -73,6 +73,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <ShipmentDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tracking"
+            element={
+              <ProtectedRoute>
+                <TrackingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tracking/:id"
+            element={
+              <ProtectedRoute>
+                <TrackingPage />
               </ProtectedRoute>
             }
           />

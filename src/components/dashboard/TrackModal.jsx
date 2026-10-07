@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { X, Search, MapPin, Truck, CheckCircle2, Clock } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { X, Search, MapPin, Truck, CheckCircle2, Clock, ExternalLink } from 'lucide-react'
 
 export default function TrackModal({
   isOpen,
@@ -200,7 +201,16 @@ export default function TrackModal({
           </div>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-white/10 flex justify-end relative z-10">
+        <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between gap-3 relative z-10">
+          <Link
+            to={`/tracking?code=${encodeURIComponent(matched.id)}`}
+            onClick={onClose}
+            className="text-xs font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 transition-colors"
+          >
+            <span>Open Dedicated Live GPS Radar</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+
           <button
             type="button"
             onClick={onClose}
