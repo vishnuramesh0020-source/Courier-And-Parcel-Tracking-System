@@ -1,6 +1,9 @@
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/useAuth'
+import { useNotifications } from '../../context/useNotifications'
 import GlobeIcon from './GlobeIcon'
+import NotificationDropdown from '../notifications/NotificationDropdown'
 import {
   Package,
   LayoutDashboard,
@@ -12,10 +15,11 @@ import {
   Radar,
   ShieldAlert,
 } from 'lucide-react'
-import { toast } from 'react-toastify'
 
 export default function Navbar() {
   const { user, logout } = useAuth()
+  const { unreadCount } = useNotifications()
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const location = useLocation()
 
   const isDashboard = location.pathname === '/dashboard'
@@ -25,6 +29,7 @@ export default function Navbar() {
     location.pathname.startsWith('/status')
   const isShipments = location.pathname.startsWith('/shipments')
   const isCustomers = location.pathname.startsWith('/customers')
+  const isNotifications = location.pathname.startsWith('/notifications')
 
   return (
     <header className="border-b border-cyan-500/30 bg-[#091526]/95 backdrop-blur-md sticky top-0 z-30 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
@@ -104,20 +109,50 @@ export default function Navbar() {
             <Users className="w-3.5 h-3.5" />
             <span>Customers</span>
           </Link>
+
+          <Link
+            to="/notifications"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+              isNotifications
+                ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+            }`}
+          >
+            <Bell className="w-3.5 h-3.5" />
+            <span>Notifications</span>
+            {unreadCount > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold bg-cyan-500/30 text-cyan-300 border border-cyan-400/40">
+                {unreadCount}
+              </span>
+            )}
+          </Link>
         </nav>
 
         {/* Right Action Icons & Profile */}
         <div className="flex items-center gap-2.5 sm:gap-3 justify-end">
 
-          {/* Notification bell with red alert dot */}
-          <button
-            onClick={() => toast.info('System Telemetry: All 12 global corridors normal. 99.2% on-time.')}
-            className="relative p-2 rounded-xl bg-[#050b14] border border-cyan-500/30 text-cyan-400 hover:text-white hover:border-cyan-300 transition-colors cursor-pointer"
-            title="Alert Notifications"
-          >
-            <Bell className="w-4 h-4" />
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_6px_#f43f5e]" />
-          </button>
+          {/* Notification bell container with dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsDropdownOpen((prev) => !prev)}
+              className="relative p-2 rounded-xl bg-[#050b14] border border-cyan-500/30 text-cyan-400 hover:text-white hover:border-cyan-300 transition-colors cursor-pointer"
+              title="Notification Center (Click to toggle panel)"
+            >
+              <Bell className="w-4 h-4" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-extrabold flex items-center justify-center shadow-[0_0_8px_#f43f5e] animate-pulse">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Notification Dropdown */}
+            <NotificationDropdown
+              isOpen={isDropdownOpen}
+              onClose={() => setIsDropdownOpen(false)}
+            />
+          </div>
 
           {/* User Profile */}
           <div className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-[#050b14] border border-cyan-500/40">
@@ -211,6 +246,20 @@ export default function Navbar() {
         >
           <Users className="w-3 h-3" />
           <span>Customers</span>
+        </Link>
+        <Link
+          to="/notifications"
+          className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all ${
+            isNotifications
+              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40'
+              : 'text-slate-400'
+          }`}
+        >
+          <Bell className="w-3 h-3" />
+          <span>Alerts</span>
+          {unreadCount > 0 && (
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+          )}
         </Link>
       </div>
     </header>

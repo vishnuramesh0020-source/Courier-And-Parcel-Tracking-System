@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 
 import { AuthProvider } from './context/AuthContext'
+import { NotificationProvider } from './context/NotificationContext'
 import AuthPage from './pages/AuthPage'
 import DashboardPage from './pages/DashboardPage'
 import ShipmentsPage from './pages/ShipmentsPage'
@@ -10,13 +11,15 @@ import CustomersPage from './pages/CustomersPage'
 import CustomerProfilePage from './pages/CustomerProfilePage'
 import TrackingPage from './pages/TrackingPage'
 import DeliveryStatusPage from './pages/DeliveryStatusPage'
+import NotificationsPage from './pages/NotificationsPage'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        {/* Global Toast Container styled to match dark UI */}
+        <NotificationProvider>
+          {/* Global Toast Container styled to match dark UI */}
         <ToastContainer
           position="top-right"
           autoClose={3500}
@@ -106,10 +109,20 @@ export default function App() {
             element={<Navigate to="/delivery-status" replace />}
           />
 
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Fallback & Root Redirection */}
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
+        </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
   )

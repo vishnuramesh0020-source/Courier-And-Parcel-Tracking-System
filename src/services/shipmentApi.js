@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { notifyShipmentCreated } from './notificationService'
 
 // Third-Party API Endpoint (JSONPlaceholder / DummyJSON)
 const API_BASE_URL = 'https://jsonplaceholder.typicode.com'
@@ -367,6 +368,13 @@ export const createShipment = async (shipmentData) => {
   const current = getLocalShipments()
   const updated = [newRecord, ...current]
   saveLocalShipments(updated)
+
+  // Trigger Notification
+  try {
+    notifyShipmentCreated(newRecord)
+  } catch (err) {
+    console.error('Failed to dispatch shipment created notification:', err)
+  }
 
   return newRecord
 }

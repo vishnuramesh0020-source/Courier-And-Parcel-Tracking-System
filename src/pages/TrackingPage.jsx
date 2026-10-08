@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router-dom'
 import Navbar from '../components/common/Navbar'
 import TrackingSearchBar from '../components/tracking/TrackingSearchBar'
 import TrackingSummaryCard from '../components/tracking/TrackingSummaryCard'
-import TrackingLocationCard from '../components/tracking/TrackingLocationCard'
 import TrackingTimeline from '../components/tracking/TrackingTimeline'
 import TrackingHistoryTable from '../components/tracking/TrackingHistoryTable'
 import StatusUpdateModal from '../components/tracking/StatusUpdateModal'
@@ -208,10 +207,7 @@ export default function TrackingPage() {
                 onOpenStatusModal={() => setIsStatusModalOpen(true)}
               />
 
-              {/* Row 2: Live GPS Telemetry Radar */}
-              <TrackingLocationCard shipment={currentShipment} />
-
-              {/* Row 3: Sequential Milestone Stepper */}
+              {/* Sequential Milestone Stepper */}
               <TrackingTimeline shipment={currentShipment} />
 
               {/* Row 4: Historical Event-by-Event Audit Log */}

@@ -6,6 +6,7 @@ import {
   getStoredTrackingEvents,
   saveStoredTrackingEvents,
 } from './trackingService'
+import { notifyStatusUpdated } from './notificationService'
 
 export const STATUS_STORAGE_KEY = 'global_connect_status_history_v1'
 
@@ -288,6 +289,17 @@ export const updateDeliveryStatus = async (
   }
   trackingEventsMap[key] = [newTrackingEvent, ...existingTracking]
   saveStoredTrackingEvents(trackingEventsMap)
+
+  // 4. Trigger system notification (Status Update / Delivery Completed / Failed Delivery Alert)
+  try {
+    notifyStatusUpdated(target, newStatus, {
+      location: finalLocation,
+      reason,
+      previousStatus,
+    })
+  } catch (err) {
+    console.error('Failed to dispatch status notification:', err)
+  }
 
   return {
     shipment: updatedShipment,

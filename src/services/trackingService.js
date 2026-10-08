@@ -1,4 +1,5 @@
 import { getLocalShipments, updateShipment } from './shipmentApi'
+import { notifyStatusUpdated } from './notificationService'
 
 export const TRACKING_EVENTS_KEY = 'global_connect_tracking_events_v1'
 
@@ -29,66 +30,6 @@ export const extractCityFromAddress = (address = '') => {
     }
   }
   return 'New York'
-}
-
-/**
- * Generate simulated GPS telemetry and transponder status
- */
-export const getSimulatedTelemetry = (shipment) => {
-  if (!shipment) return null
-
-  const originCity = extractCityFromAddress(shipment.pickupAddress)
-  const destCity = extractCityFromAddress(shipment.deliveryAddress)
-  const originHub = HUB_COORDINATES[originCity] || HUB_COORDINATES['New York']
-  const destHub = HUB_COORDINATES[destCity] || HUB_COORDINATES['London']
-
-  const progress = shipment.progress || (shipment.deliveryStatus === 'Delivered' ? 100 : 50)
-  const isAirborne = shipment.deliveryStatus === 'In Transit' && progress > 20 && progress < 85
-
-  // Calculate interpolated lat/lng between origin and destination
-  const factor = Math.min(1, Math.max(0, progress / 100))
-  const currentLat = Number((originHub.lat + (destHub.lat - originHub.lat) * factor).toFixed(4))
-  const currentLng = Number((originHub.lng + (destHub.lng - originHub.lng) * factor).toFixed(4))
-
-  const totalNauticalMiles = Math.round(
-    Math.sqrt(
-      Math.pow((destHub.lat - originHub.lat) * 60, 2) +
-      Math.pow((destHub.lng - originHub.lng) * 60, 2)
-    ) * 1.15
-  ) || 3450
-
-  const distanceCovered = Math.round((totalNauticalMiles * progress) / 100)
-  const distanceRemaining = Math.max(0, totalNauticalMiles - distanceCovered)
-
-  return {
-    originCity,
-    destCity,
-    originHub,
-    destHub,
-    currentCoordinates: {
-      lat: currentLat,
-      lng: currentLng,
-      formatted: `${Math.abs(currentLat)}° ${currentLat >= 0 ? 'N' : 'S'}, ${Math.abs(currentLng)}° ${currentLng >= 0 ? 'E' : 'W'}`,
-    },
-    locationDescription: shipment.currentLocation || (
-      isAirborne
-        ? `Transcontinental Air Corridor FL380 (Bearing ${Math.round(45 + progress * 2)}°)`
-        : shipment.deliveryStatus === 'Delivered'
-        ? `Delivered to Destination (${destCity} Receiving Hub)`
-        : `${originCity} Sorting Terminal Bay 12`
-    ),
-    altitude: isAirborne ? '11,580 m (FL380)' : 'Ground Level',
-    groundSpeed: isAirborne ? '890 km/h (480 knots)' : shipment.deliveryStatus === 'Out for Delivery' ? '45 km/h' : '0 km/h (Stationary)',
-    totalNauticalMiles,
-    distanceCovered,
-    distanceRemaining,
-    signalStrength: '100% Locked',
-    satelliteConstellation: 'Galileo / GPS L5 Multi-band',
-    pingLatency: '14 ms',
-    temperature: isAirborne ? '-52°C External' : '+21°C Ambient',
-    humidity: '42% Stabilized',
-    telemetryUpdated: 'Just now (Realtime Stream)',
-  }
 }
 
 /**
@@ -319,6 +260,17 @@ export const updateParcelStatus = async (trackingNumber, newStatus, locationNote
   const updatedEvents = [newEvent, ...existingEvents]
   allEvents[key] = updatedEvents
   saveStoredTrackingEvents(allEvents)
+
+  // Trigger Notification
+  try {
+    notifyStatusUpdated(found, newStatus, {
+      location: locationNote || found.currentLocation,
+      reason: eventDetails || '',
+      previousStatus: found.deliveryStatus,
+    })
+  } catch (err) {
+    console.error('Failed to dispatch tracking status notification:', err)
+  }
 
   return {
     shipment: updatedShipment,
