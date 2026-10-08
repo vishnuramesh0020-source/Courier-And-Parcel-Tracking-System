@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import Navbar from '../components/common/Navbar'
+import StatusBadge from '../components/common/StatusBadge'
 import CustomerFormModal from '../components/customers/CustomerFormModal'
 import CustomerDeleteModal from '../components/customers/CustomerDeleteModal'
 import {
@@ -344,9 +345,7 @@ export default function CustomerProfilePage() {
                             <span className="font-mono font-bold text-white tracking-wider">
                               {s.trackingNumber || s.id}
                             </span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-400/30 font-semibold">
-                              {s.deliveryStatus}
-                            </span>
+                            <StatusBadge status={s.deliveryStatus} size="sm" />
                           </div>
                           <p className="text-[11px] text-slate-400 truncate mt-0.5">
                             {s.parcelType} • {s.parcelWeight} kg • Dispatched {s.shippingDate}

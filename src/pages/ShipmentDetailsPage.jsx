@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import Navbar from '../components/common/Navbar'
+import StatusBadge from '../components/common/StatusBadge'
 import ShipmentFormModal from '../components/shipments/ShipmentFormModal'
 import DeleteConfirmModal from '../components/shipments/DeleteConfirmModal'
 import {
@@ -110,23 +111,6 @@ export default function ShipmentDetailsPage() {
     }
   }
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Delivered':
-        return 'bg-emerald-500/15 text-emerald-300 border-emerald-400/50 shadow-[0_0_15px_rgba(52,211,153,0.3)]'
-      case 'In Transit':
-        return 'bg-cyan-500/15 text-cyan-300 border-cyan-400/50 shadow-[0_0_15px_rgba(56,189,248,0.3)]'
-      case 'Out for Delivery':
-        return 'bg-sky-500/15 text-sky-300 border-sky-400/50 shadow-[0_0_15px_rgba(56,189,248,0.3)]'
-      case 'Customs Clearance':
-        return 'bg-amber-500/15 text-amber-300 border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
-      case 'Cancelled':
-        return 'bg-rose-500/15 text-rose-300 border-rose-400/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]'
-      case 'Pending Pickup':
-      default:
-        return 'bg-purple-500/15 text-purple-300 border-purple-400/50 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
-    }
-  }
 
   return (
     <div className="min-h-screen bg-[#060b14] text-slate-100 flex flex-col select-none relative overflow-x-hidden font-sans">
@@ -188,13 +172,7 @@ export default function ShipmentDetailsPage() {
                     >
                       {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
                     </button>
-                    <span
-                      className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border ${getStatusBadge(
-                        shipment.deliveryStatus
-                      )}`}
-                    >
-                      {shipment.deliveryStatus}
-                    </span>
+                    <StatusBadge status={shipment.deliveryStatus} size="sm" />
                   </div>
                   <p className="text-xs text-slate-400 mt-1">
                     Carrier Line: <span className="text-cyan-300 font-semibold">{shipment.carrier || 'Global Air Cargo'}</span> • SLA Protected

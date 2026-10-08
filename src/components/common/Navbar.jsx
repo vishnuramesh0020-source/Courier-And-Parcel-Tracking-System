@@ -9,18 +9,20 @@ import {
   User,
   Shield,
   Bell,
-  Radio,
-  Search,
   Radar,
+  ShieldAlert,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
 
-export default function Navbar({ onSearch }) {
+export default function Navbar() {
   const { user, logout } = useAuth()
   const location = useLocation()
 
   const isDashboard = location.pathname === '/dashboard'
   const isTracking = location.pathname.startsWith('/tracking')
+  const isDeliveryStatus =
+    location.pathname.startsWith('/delivery-status') ||
+    location.pathname.startsWith('/status')
   const isShipments = location.pathname.startsWith('/shipments')
   const isCustomers = location.pathname.startsWith('/customers')
 
@@ -68,6 +70,18 @@ export default function Navbar({ onSearch }) {
           </Link>
 
           <Link
+            to="/delivery-status"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+              isDeliveryStatus
+                ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+            }`}
+          >
+            <ShieldAlert className="w-3.5 h-3.5" />
+            <span>Status</span>
+          </Link>
+
+          <Link
             to="/shipments"
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
               isShipments
@@ -92,32 +106,8 @@ export default function Navbar({ onSearch }) {
           </Link>
         </nav>
 
-        {/* Optional Center Tracking Search Pill */}
-        {onSearch && (
-          <div className="hidden md:flex items-center flex-1 max-w-sm mx-4">
-            <div className="relative w-full">
-              <Search className="w-4 h-4 text-cyan-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <input
-                type="text"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.target.value.trim()) {
-                    onSearch(e.target.value.trim())
-                  }
-                }}
-                placeholder="Search tracking code, courier, or city hub..."
-                className="w-full h-9.5 pl-10 pr-4 text-xs rounded-xl bg-[#050b14] border border-cyan-500/40 text-white placeholder-slate-400 outline-none focus:border-cyan-300 focus:shadow-[0_0_15px_rgba(6,182,212,0.25)]"
-              />
-            </div>
-          </div>
-        )}
-
         {/* Right Action Icons & Profile */}
         <div className="flex items-center gap-2.5 sm:gap-3 justify-end">
-          {/* Live Node Pill */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-400/30 text-cyan-300 text-[11px] font-semibold">
-            <Radio className="w-3 h-3 text-cyan-400 animate-pulse" />
-            <span>12 Hubs Synced</span>
-          </div>
 
           {/* Notification bell with red alert dot */}
           <button
@@ -188,6 +178,17 @@ export default function Navbar({ onSearch }) {
         >
           <Radar className="w-3 h-3" />
           <span>Tracking</span>
+        </Link>
+        <Link
+          to="/delivery-status"
+          className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all ${
+            isDeliveryStatus
+              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40'
+              : 'text-slate-400'
+          }`}
+        >
+          <ShieldAlert className="w-3 h-3" />
+          <span>Status</span>
         </Link>
         <Link
           to="/shipments"

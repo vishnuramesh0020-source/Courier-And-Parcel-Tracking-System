@@ -13,9 +13,11 @@ export default function TrackModal({
   if (!isOpen) return null
 
   const matched = shipments.find(
-    (s) => s.id.toLowerCase() === trackingCode.trim().toLowerCase()
+    (s) =>
+      (s.id || '').toLowerCase() === trackingCode.trim().toLowerCase() ||
+      (s.trackingNumber || '').toLowerCase() === trackingCode.trim().toLowerCase()
   ) || {
-    id: trackingCode.trim() || 'GC-94821-US',
+    id: trackingCode.trim() || 'GC-948210-US',
     origin: 'New York (JFK Hub), USA',
     destination: 'London (Heathrow Hub), UK',
     status: 'In Transit',

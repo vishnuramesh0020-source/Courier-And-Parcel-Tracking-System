@@ -136,7 +136,7 @@ export default function TrackingPage() {
       <div className="fixed bottom-0 right-1/4 w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[140px] pointer-events-none z-0" />
 
       {/* Unified Navigation Bar */}
-      <Navbar onSearch={handleSearch} />
+      <Navbar />
 
       {/* Main Container (Edge-to-Edge Full Width) */}
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-5 flex flex-col gap-6 relative z-10">

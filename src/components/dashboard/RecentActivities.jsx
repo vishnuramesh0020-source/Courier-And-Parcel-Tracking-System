@@ -4,52 +4,11 @@ import {
   Filter,
   ExternalLink,
 } from 'lucide-react'
+import StatusBadge from '../common/StatusBadge'
 
 export default function RecentActivities({ activities = [], onTrackParcel }) {
   const [filterType, setFilterType] = useState('ALL')
   const [searchTerm, setSearchTerm] = useState('')
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Delivered':
-        return {
-          label: 'DELIVERED',
-          style:
-            'bg-emerald-500/15 text-emerald-300 border border-emerald-400/50 shadow-[0_0_12px_rgba(52,211,153,0.3)]',
-        }
-      case 'In Transit':
-        return {
-          label: 'IN TRANSIT',
-          style:
-            'bg-cyan-500/15 text-cyan-300 border border-cyan-400/50 shadow-[0_0_12px_rgba(56,189,248,0.3)]',
-        }
-      case 'Out for Delivery':
-        return {
-          label: 'OUT FOR DELIVERY',
-          style:
-            'bg-sky-500/15 text-sky-300 border border-sky-400/50 shadow-[0_0_12px_rgba(56,189,248,0.3)]',
-        }
-      case 'Customs Clearance':
-        return {
-          label: 'CUSTOMS CLEARED',
-          style:
-            'bg-amber-500/15 text-amber-300 border border-amber-400/50 shadow-[0_0_12px_rgba(251,191,36,0.3)]',
-        }
-      case 'Customer Registered':
-        return {
-          label: 'NEW CLIENT',
-          style:
-            'bg-purple-500/15 text-purple-300 border border-purple-400/50 shadow-[0_0_12px_rgba(168,85,247,0.3)]',
-        }
-      case 'Pending Pickup':
-      default:
-        return {
-          label: 'DELAYED',
-          style:
-            'bg-amber-500/15 text-amber-300 border border-amber-400/50 shadow-[0_0_12px_rgba(251,191,36,0.3)]',
-        }
-    }
-  }
 
   // Filter activities
   const filteredActivities = activities.filter((act) => {
@@ -71,6 +30,9 @@ export default function RecentActivities({ activities = [], onTrackParcel }) {
     return matchesFilter && matchesSearch
   })
 
+  // Display only the 5 most recent activities
+  const displayedActivities = filteredActivities.slice(0, 5)
+
   return (
     <div className="w-full relative overflow-hidden rounded-2xl bg-[#091526]/90 border border-cyan-500/40 shadow-[0_0_25px_rgba(6,182,212,0.15)] flex flex-col">
       {/* Table Header matching Image 2 */}
@@ -78,10 +40,10 @@ export default function RecentActivities({ activities = [], onTrackParcel }) {
         <div>
           <h2 className="text-sm sm:text-base font-bold text-white tracking-wide flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#38bdf8]" />
-            Live Dark Courier Dispatch & Recent Events
+            Recent Activities
           </h2>
           <p className="text-[11px] text-slate-400 mt-0.5">
-            Real-time transcontinental waypoint logs & automated consignment manifests
+            Latest consignment and delivery updates
           </p>
         </div>
 
@@ -133,7 +95,7 @@ export default function RecentActivities({ activities = [], onTrackParcel }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-cyan-500/10">
-            {filteredActivities.length === 0 ? (
+            {displayedActivities.length === 0 ? (
               <tr>
                 <td colSpan={6} className="py-8 text-center text-slate-400">
                   <Filter className="w-6 h-6 mx-auto mb-1 text-slate-600" />
@@ -141,8 +103,7 @@ export default function RecentActivities({ activities = [], onTrackParcel }) {
                 </td>
               </tr>
             ) : (
-              filteredActivities.map((act) => {
-                const badge = getStatusBadge(act.status)
+              displayedActivities.map((act) => {
                 return (
                   <tr
                     key={act.id}
@@ -174,11 +135,7 @@ export default function RecentActivities({ activities = [], onTrackParcel }) {
                         : 'To Yani USA'}
                     </td>
                     <td className="py-3.5 px-4 text-center">
-                      <span
-                        className={`inline-block text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wide ${badge.style}`}
-                      >
-                        {badge.label}
-                      </span>
+                      <StatusBadge status={act.status} size="sm" />
                     </td>
                     <td className="py-3.5 px-4 text-right">
                       <button
@@ -202,8 +159,8 @@ export default function RecentActivities({ activities = [], onTrackParcel }) {
 
       {/* Table Footer */}
       <div className="p-3 bg-[#050b14]/70 border-t border-cyan-500/20 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-400 px-4">
-        <span>ACTIVE LOG DISPATCHES: {filteredActivities.length}</span>
-        <span className="text-cyan-400">TELEMETRY ENCRYPTED • 100% OK</span>
+        <span>Recent Records: {displayedActivities.length}</span>
+        <span className="text-emerald-400">Live Synchronized</span>
       </div>
     </div>
   )

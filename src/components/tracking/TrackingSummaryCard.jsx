@@ -12,6 +12,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
+import StatusBadge from '../common/StatusBadge'
 
 function getETAEstimate(expectedDeliveryDate, deliveryStatus) {
   if (deliveryStatus === 'Delivered') {
@@ -20,8 +21,14 @@ function getETAEstimate(expectedDeliveryDate, deliveryStatus) {
   if (deliveryStatus === 'Out for Delivery') {
     return 'Arriving Today (Final Mile Dispatch)'
   }
-  if (deliveryStatus === 'Customs Clearance') {
-    return 'In Harbor / Customs Inspection'
+  if (deliveryStatus === 'Failed Delivery') {
+    return 'Delivery Attempt Failed - Reschedule Queued'
+  }
+  if (deliveryStatus === 'Picked Up') {
+    return 'Picked Up from Shipper - En Route to Intake Hub'
+  }
+  if (deliveryStatus === 'Pending' || deliveryStatus === 'Pending Pickup') {
+    return 'Awaiting Shipper Pickup & Flight Manifest'
   }
   if (expectedDeliveryDate) {
     return `Estimated Arrival: ${expectedDeliveryDate}`
@@ -54,24 +61,6 @@ export default function TrackingSummaryCard({
     window.print()
   }
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Delivered':
-        return 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50 shadow-[0_0_15px_rgba(52,211,153,0.3)]'
-      case 'In Transit':
-        return 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50 shadow-[0_0_15px_rgba(56,189,248,0.3)]'
-      case 'Out for Delivery':
-        return 'bg-sky-500/20 text-sky-300 border-sky-400/50 shadow-[0_0_15px_rgba(56,189,248,0.3)]'
-      case 'Customs Clearance':
-        return 'bg-amber-500/20 text-amber-300 border-amber-400/50 shadow-[0_0_15px_rgba(251,191,36,0.3)]'
-      case 'Cancelled':
-        return 'bg-rose-500/20 text-rose-300 border-rose-400/50 shadow-[0_0_15px_rgba(244,63,94,0.3)]'
-      case 'Pending Pickup':
-      default:
-        return 'bg-purple-500/20 text-purple-300 border-purple-400/50 shadow-[0_0_15px_rgba(168,85,247,0.3)]'
-    }
-  }
-
   const progress = shipment.progress || (shipment.deliveryStatus === 'Delivered' ? 100 : 50)
 
   return (
@@ -100,13 +89,7 @@ export default function TrackingSummaryCard({
               >
                 {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
               </button>
-              <span
-                className={`text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border ${getStatusBadge(
-                  shipment.deliveryStatus
-                )}`}
-              >
-                {shipment.deliveryStatus}
-              </span>
+              <StatusBadge status={shipment.deliveryStatus} size="sm" />
             </div>
             <div className="text-xs text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
               <span>Carrier: <strong className="text-cyan-300">{shipment.carrier || 'Global Air Cargo'}</strong></span>

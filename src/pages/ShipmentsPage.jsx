@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/common/Navbar'
+import StatusBadge from '../components/common/StatusBadge'
 import ShipmentFormModal from '../components/shipments/ShipmentFormModal'
 import DeleteConfirmModal from '../components/shipments/DeleteConfirmModal'
 import ShipmentDetailsModal from '../components/shipments/ShipmentDetailsModal'
@@ -42,12 +43,13 @@ const PARCEL_TYPES = [
 
 const STATUS_FILTERS = [
   'All Statuses',
-  'Pending Pickup',
+  'Pending',
+  'Picked Up',
   'In Transit',
   'Out for Delivery',
   'Delivered',
-  'Customs Clearance',
   'Cancelled',
+  'Failed Delivery',
 ]
 
 export default function ShipmentsPage() {
@@ -292,27 +294,10 @@ export default function ShipmentsPage() {
       inTransit: shipments.filter((s) => s.deliveryStatus === 'In Transit').length,
       delivered: shipments.filter((s) => s.deliveryStatus === 'Delivered').length,
       outForDelivery: shipments.filter((s) => s.deliveryStatus === 'Out for Delivery').length,
-      pending: shipments.filter((s) => s.deliveryStatus === 'Pending Pickup').length,
+      pending: shipments.filter((s) => s.deliveryStatus === 'Pending' || s.deliveryStatus === 'Pending Pickup').length,
+      failed: shipments.filter((s) => s.deliveryStatus === 'Failed Delivery').length,
     }
   }, [shipments])
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Delivered':
-        return 'bg-emerald-500/15 text-emerald-300 border-emerald-400/40 shadow-[0_0_10px_rgba(52,211,153,0.25)]'
-      case 'In Transit':
-        return 'bg-cyan-500/15 text-cyan-300 border-cyan-400/40 shadow-[0_0_10px_rgba(56,189,248,0.25)]'
-      case 'Out for Delivery':
-        return 'bg-sky-500/15 text-sky-300 border-sky-400/40 shadow-[0_0_10px_rgba(56,189,248,0.25)]'
-      case 'Customs Clearance':
-        return 'bg-amber-500/15 text-amber-300 border-amber-400/40 shadow-[0_0_10px_rgba(251,191,36,0.25)]'
-      case 'Cancelled':
-        return 'bg-rose-500/15 text-rose-300 border-rose-400/40 shadow-[0_0_10px_rgba(244,63,94,0.25)]'
-      case 'Pending Pickup':
-      default:
-        return 'bg-purple-500/15 text-purple-300 border-purple-400/40 shadow-[0_0_10px_rgba(168,85,247,0.25)]'
-    }
-  }
 
   return (
     <div className="min-h-screen bg-[#060b14] text-slate-100 flex flex-col select-none relative overflow-x-hidden font-sans">
@@ -690,13 +675,7 @@ export default function ShipmentsPage() {
 
                           {/* Status */}
                           <td className="py-3.5 px-4 text-center">
-                            <span
-                              className={`inline-block text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border ${getStatusBadge(
-                                s.deliveryStatus
-                              )}`}
-                            >
-                              {s.deliveryStatus}
-                            </span>
+                            <StatusBadge status={s.deliveryStatus} size="sm" />
                           </td>
 
                           {/* Actions */}
@@ -773,13 +752,7 @@ export default function ShipmentsPage() {
                             {s.carrier || 'Global Air Cargo'}
                           </span>
                         </div>
-                        <span
-                          className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase border shrink-0 ${getStatusBadge(
-                            s.deliveryStatus
-                          )}`}
-                        >
-                          {s.deliveryStatus}
-                        </span>
+                        <StatusBadge status={s.deliveryStatus} size="sm" />
                       </div>
 
                       {/* Route Info */}

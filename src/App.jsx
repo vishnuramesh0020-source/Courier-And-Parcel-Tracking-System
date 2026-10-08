@@ -9,6 +9,7 @@ import ShipmentDetailsPage from './pages/ShipmentDetailsPage'
 import CustomersPage from './pages/CustomersPage'
 import CustomerProfilePage from './pages/CustomerProfilePage'
 import TrackingPage from './pages/TrackingPage'
+import DeliveryStatusPage from './pages/DeliveryStatusPage'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 
 export default function App() {
@@ -91,6 +92,18 @@ export default function App() {
                 <TrackingPage />
               </ProtectedRoute>
             }
+          />
+          <Route
+            path="/delivery-status"
+            element={
+              <ProtectedRoute>
+                <DeliveryStatusPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/status"
+            element={<Navigate to="/delivery-status" replace />}
           />
 
           {/* Fallback & Root Redirection */}

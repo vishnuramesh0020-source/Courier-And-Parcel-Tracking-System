@@ -17,6 +17,7 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
+import StatusBadge from '../common/StatusBadge'
 
 export default function ShipmentDetailsModal({
   isOpen,
@@ -46,23 +47,6 @@ export default function ShipmentDetailsModal({
     toast.info('Direct tracking URL copied to clipboard!')
   }
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Delivered':
-        return 'bg-emerald-500/15 text-emerald-300 border-emerald-400/50 shadow-[0_0_12px_rgba(52,211,153,0.25)]'
-      case 'In Transit':
-        return 'bg-cyan-500/15 text-cyan-300 border-cyan-400/50 shadow-[0_0_12px_rgba(56,189,248,0.25)]'
-      case 'Out for Delivery':
-        return 'bg-sky-500/15 text-sky-300 border-sky-400/50 shadow-[0_0_12px_rgba(56,189,248,0.25)]'
-      case 'Customs Clearance':
-        return 'bg-amber-500/15 text-amber-300 border-amber-400/50 shadow-[0_0_12px_rgba(251,191,36,0.25)]'
-      case 'Cancelled':
-        return 'bg-rose-500/15 text-rose-300 border-rose-400/50 shadow-[0_0_12px_rgba(244,63,94,0.25)]'
-      case 'Pending Pickup':
-      default:
-        return 'bg-purple-500/15 text-purple-300 border-purple-400/50 shadow-[0_0_12px_rgba(168,85,247,0.25)]'
-    }
-  }
 
   const milestones = [
     {
@@ -137,13 +121,7 @@ export default function ShipmentDetailsModal({
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 </button>
-                <span
-                  className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${getStatusBadge(
-                    shipment.deliveryStatus
-                  )}`}
-                >
-                  {shipment.deliveryStatus}
-                </span>
+                <StatusBadge status={shipment.deliveryStatus} size="sm" />
               </div>
               <p className="text-[11px] text-slate-400 font-sans truncate mt-0.5">
                 Carrier: <span className="text-cyan-300 font-semibold">{shipment.carrier || 'Global Air Cargo'}</span> • Issued Waybill

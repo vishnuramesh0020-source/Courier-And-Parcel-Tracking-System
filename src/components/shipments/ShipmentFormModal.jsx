@@ -28,12 +28,13 @@ const PARCEL_TYPES = [
 ]
 
 const STATUS_OPTIONS = [
-  'Pending Pickup',
+  'Pending',
+  'Picked Up',
   'In Transit',
   'Out for Delivery',
   'Delivered',
-  'Customs Clearance',
   'Cancelled',
+  'Failed Delivery',
 ]
 
 const CARRIERS = [

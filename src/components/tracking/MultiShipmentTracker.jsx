@@ -9,6 +9,7 @@ import {
   Plus,
 } from 'lucide-react'
 import { toast } from 'react-toastify'
+import StatusBadge from '../common/StatusBadge'
 
 export default function MultiShipmentTracker({
   allShipments = [],
@@ -77,21 +78,6 @@ export default function MultiShipmentTracker({
 
     return { total, inTransit, delivered, outForDelivery, customs, avgProgress }
   }, [trackedShipments])
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Delivered':
-        return 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50'
-      case 'In Transit':
-        return 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50'
-      case 'Out for Delivery':
-        return 'bg-sky-500/20 text-sky-300 border-sky-400/50'
-      case 'Customs Clearance':
-        return 'bg-amber-500/20 text-amber-300 border-amber-400/50'
-      default:
-        return 'bg-purple-500/20 text-purple-300 border-purple-400/50'
-    }
-  }
 
   return (
     <div className="w-full flex flex-col gap-5">
@@ -258,13 +244,7 @@ export default function MultiShipmentTracker({
                         {s.trackingNumber || s.id}
                       </span>
                     </div>
-                    <span
-                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider border ${getStatusBadge(
-                        s.deliveryStatus
-                      )}`}
-                    >
-                      {s.deliveryStatus}
-                    </span>
+                    <StatusBadge status={s.deliveryStatus} size="sm" />
                   </div>
 
                   {/* Progress Bar */}

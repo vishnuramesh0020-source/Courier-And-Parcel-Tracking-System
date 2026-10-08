@@ -10,12 +10,13 @@ import {
 } from 'lucide-react'
 
 const STATUS_OPTIONS = [
-  { value: 'Pending Pickup', label: 'Pending Pickup (At Shipper Facility)' },
+  { value: 'Pending', label: 'Pending (Awaiting Shipper Pickup)' },
+  { value: 'Picked Up', label: 'Picked Up (Collected by Courier)' },
   { value: 'In Transit', label: 'In Transit (Air / Linehaul Corridor)' },
-  { value: 'Customs Clearance', label: 'Customs Clearance (Port of Entry)' },
   { value: 'Out for Delivery', label: 'Out for Delivery (Courier Van Active)' },
   { value: 'Delivered', label: 'Delivered (Signed by Consignee)' },
   { value: 'Cancelled', label: 'Cancelled (Manifest Terminated)' },
+  { value: 'Failed Delivery', label: 'Failed Delivery (Attempt Unsuccessful)' },
 ]
 
 export default function StatusUpdateModal({

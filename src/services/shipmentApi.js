@@ -80,11 +80,12 @@ export const INITIAL_SHIPMENTS = [
     parcelType: 'Medical Supplies',
     shippingDate: '2026-10-03',
     expectedDeliveryDate: '2026-10-08',
-    deliveryStatus: 'Customs Clearance',
+    deliveryStatus: 'Failed Delivery',
     carrier: 'Atlantic Logistics',
-    progress: 40,
-    currentLocation: 'Madrid Barajas Customs Facility',
-    notes: 'Maintain refrigeration between 2°C and 8°C.',
+    progress: 85,
+    currentLocation: 'Madrid Barajas Dispatch Gate (Consignee Closed)',
+    statusReason: 'Consignee unavailable / Business premises closed',
+    notes: 'Re-delivery attempt queued for morning courier cycle.',
   },
   {
     id: 'GC-552018-UK',
@@ -97,11 +98,11 @@ export const INITIAL_SHIPMENTS = [
     parcelType: 'Fragile',
     shippingDate: '2026-10-02',
     expectedDeliveryDate: '2026-10-07',
-    deliveryStatus: 'In Transit',
+    deliveryStatus: 'Picked Up',
     carrier: 'Global Air Cargo',
-    progress: 55,
-    currentLocation: 'Singapore Changi Air Transit Node',
-    notes: 'Fragile optical calibration lenses. Do not stack.',
+    progress: 30,
+    currentLocation: 'Cambridge Express Logistics Bay',
+    notes: 'Fragile optical calibration lenses. Collected from shipper.',
   },
   {
     id: 'GC-441920-US',
@@ -131,7 +132,7 @@ export const INITIAL_SHIPMENTS = [
     parcelType: 'Medical Supplies',
     shippingDate: '2026-10-05',
     expectedDeliveryDate: '2026-10-09',
-    deliveryStatus: 'Pending Pickup',
+    deliveryStatus: 'Pending',
     carrier: 'Nordic Express Line',
     progress: 15,
     currentLocation: 'Oslo Cargo Staging Area',
@@ -165,11 +166,12 @@ export const INITIAL_SHIPMENTS = [
     parcelType: 'Perishable',
     shippingDate: '2026-10-03',
     expectedDeliveryDate: '2026-10-08',
-    deliveryStatus: 'In Transit',
+    deliveryStatus: 'Cancelled',
     carrier: 'Atlantic Logistics',
-    progress: 60,
+    progress: 0,
     currentLocation: 'London Heathrow Terminal 4 Cargo',
-    notes: 'Temperature-monitored vacuum containers.',
+    statusReason: 'Shipper requested consignment cancellation',
+    notes: 'Order voided prior to transcontinental cargo loading.',
   },
   {
     id: 'GC-990540-US',
@@ -199,9 +201,9 @@ export const INITIAL_SHIPMENTS = [
     parcelType: 'Standard Box',
     shippingDate: '2026-10-04',
     expectedDeliveryDate: '2026-10-09',
-    deliveryStatus: 'In Transit',
+    deliveryStatus: 'Picked Up',
     carrier: 'Express Overland & Air',
-    progress: 48,
+    progress: 30,
     currentLocation: 'Milan Malpensa Hub (MXP)',
     notes: 'Autumn luxury runway samples.',
   },
@@ -232,7 +234,19 @@ export const getLocalShipments = () => {
       localStorage.setItem(STORAGE_KEYS.SHIPMENTS, JSON.stringify(INITIAL_SHIPMENTS))
       return INITIAL_SHIPMENTS
     }
-    return JSON.parse(raw)
+    const parsed = JSON.parse(raw)
+    let modified = false
+    const normalized = parsed.map((s) => {
+      if (s.deliveryStatus === 'Pending Pickup') {
+        modified = true
+        return { ...s, deliveryStatus: 'Pending' }
+      }
+      return s
+    })
+    if (modified) {
+      localStorage.setItem(STORAGE_KEYS.SHIPMENTS, JSON.stringify(normalized))
+    }
+    return normalized
   } catch (error) {
     console.error('Failed to read shipments from localStorage:', error)
     return INITIAL_SHIPMENTS
@@ -388,12 +402,16 @@ export const updateShipment = async (id, updatedFields) => {
       case 'Out for Delivery':
         updatedRecord.progress = 90
         break
+      case 'Failed Delivery':
+        updatedRecord.progress = 85
+        break
       case 'In Transit':
         updatedRecord.progress = 65
         break
-      case 'Customs Clearance':
-        updatedRecord.progress = 40
+      case 'Picked Up':
+        updatedRecord.progress = 30
         break
+      case 'Pending':
       case 'Pending Pickup':
         updatedRecord.progress = 15
         break

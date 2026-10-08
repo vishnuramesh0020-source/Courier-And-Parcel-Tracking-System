@@ -29,14 +29,14 @@ export default function StatCard({
       </div>
 
       <div className="mt-3 pt-2 border-t border-cyan-500/20 flex flex-col gap-1.5">
-        <div className="flex items-center justify-between text-xs">
+        <div className="flex items-center justify-between text-xs gap-2 min-w-0">
           {change && (
-            <span className="text-[11px] font-bold text-cyan-300 flex items-center gap-1">
+            <span className="text-[11px] font-bold text-cyan-300 flex items-center gap-1 shrink-0">
               <span>{change}</span>
             </span>
           )}
           {subtitle && (
-            <span className="text-[11px] text-slate-400 truncate">
+            <span className="text-[11px] text-slate-400 truncate text-right ml-auto min-w-0">
               {subtitle}
             </span>
           )}
