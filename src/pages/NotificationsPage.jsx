@@ -1,8 +1,14 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import Navbar from '../components/common/Navbar'
 import NotificationCard from '../components/notifications/NotificationCard'
 import { useNotifications } from '../context/useNotifications'
-import { NOTIFICATION_TYPES } from '../services/notificationService'
+import {
+  NOTIFICATION_TYPES,
+  generateNotificationsFromShipments,
+  saveStoredNotifications,
+} from '../services/notificationService'
+import { fetchShipments, getLocalShipments } from '../services/shipmentApi'
+import { toast } from 'react-toastify'
 import {
   Bell,
   CheckCheck,
@@ -31,6 +37,38 @@ export default function NotificationsPage() {
     resetDefaults,
     simulateNotification,
   } = useNotifications()
+
+  // Ensure shipments from Third-Party API are loaded if empty, syncing notifications
+  useEffect(() => {
+    let ignore = false
+    const existingShipments = getLocalShipments()
+    if (existingShipments.length === 0) {
+      fetchShipments().then((res) => {
+        if (!ignore && res?.data) {
+          const fresh = generateNotificationsFromShipments(res.data)
+          saveStoredNotifications(fresh)
+          resetDefaults()
+        }
+      })
+    }
+    return () => {
+      ignore = true
+    }
+  }, [resetDefaults])
+
+  const handleResetData = async () => {
+    try {
+      const res = await fetchShipments()
+      const freshShipments = res?.data || getLocalShipments()
+      const freshNotifs = generateNotificationsFromShipments(freshShipments)
+      saveStoredNotifications(freshNotifs)
+      resetDefaults()
+      toast.success('Notification feed re-synchronized from Third-Party API.')
+    } catch {
+      resetDefaults()
+      toast.info('Notification feed reset.')
+    }
+  }
 
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedType, setSelectedType] = useState('ALL') // 'ALL' | 'UNREAD' | NOTIFICATION_TYPES.*
@@ -103,7 +141,8 @@ export default function NotificationsPage() {
     <div className="min-h-screen bg-[#060b14] text-slate-100 flex flex-col font-sans">
       <Navbar />
 
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Main Container (Edge-to-Edge Full Width, No Side Space) */}
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-5 flex flex-col gap-5 relative z-10">
         {/* Page Top Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-cyan-500/20">
           <div>
@@ -140,9 +179,9 @@ export default function NotificationsPage() {
 
             <button
               type="button"
-              onClick={resetDefaults}
+              onClick={handleResetData}
               className="px-3.5 py-2 rounded-xl bg-[#091526] hover:bg-[#0d1d36] text-slate-300 hover:text-white border border-slate-700 hover:border-slate-500 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
-              title="Restore initial seed notifications"
+              title="Re-synchronize notifications from live API data"
             >
               <RotateCcw className="w-3.5 h-3.5 text-cyan-400" />
               <span>Reset Data</span>

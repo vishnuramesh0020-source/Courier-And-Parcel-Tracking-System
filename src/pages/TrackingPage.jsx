@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import Navbar from '../components/common/Navbar'
 import TrackingSearchBar from '../components/tracking/TrackingSearchBar'
@@ -7,7 +7,7 @@ import TrackingTimeline from '../components/tracking/TrackingTimeline'
 import TrackingHistoryTable from '../components/tracking/TrackingHistoryTable'
 import StatusUpdateModal from '../components/tracking/StatusUpdateModal'
 import MultiShipmentTracker from '../components/tracking/MultiShipmentTracker'
-import { getLocalShipments } from '../services/shipmentApi'
+import { getLocalShipments, fetchShipments } from '../services/shipmentApi'
 import {
   searchShipmentByCode,
   getTrackingHistory,
@@ -30,8 +30,24 @@ export default function TrackingPage() {
     const urlCode = searchParams.get('code')
     if (urlCode) return urlCode
     const list = getLocalShipments()
-    return list[0]?.trackingNumber || list[0]?.id || 'GC-948210-US'
+    return list[0]?.trackingNumber || list[0]?.id || ''
   })
+
+  // Load fresh API shipments on mount
+  useEffect(() => {
+    let ignore = false
+    fetchShipments().then((res) => {
+      if (!ignore && res?.data) {
+        setShipments(res.data)
+        if (!currentCode && res.data.length > 0) {
+          setCurrentCode(res.data[0]?.trackingNumber || res.data[0]?.id || '')
+        }
+      }
+    })
+    return () => {
+      ignore = true
+    }
+  }, [currentCode])
 
   // Synchronized active code taking URL params into account
   const activeCode = searchParams.get('code') || currentCode

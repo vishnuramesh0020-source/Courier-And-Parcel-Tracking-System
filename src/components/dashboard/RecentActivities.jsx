@@ -18,7 +18,8 @@ export default function RecentActivities({ activities = [], onTrackParcel }) {
       (filterType === 'TRANSIT' &&
         (act.status === 'In Transit' || act.status === 'Out for Delivery')) ||
       (filterType === 'CUSTOMERS' && act.type === 'customer') ||
-      (filterType === 'DELAYED' && act.status === 'Pending Pickup')
+      (filterType === 'DELAYED' &&
+        (act.status === 'Pending' || act.status === 'Pending Pickup' || act.status === 'Failed Delivery'))
 
     const matchesSearch =
       act.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

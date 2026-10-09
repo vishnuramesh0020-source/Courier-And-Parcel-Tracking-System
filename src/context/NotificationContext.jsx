@@ -118,7 +118,7 @@ export function NotificationProvider({ children }) {
 
     switch (type) {
       case NOTIFICATION_TYPES.SHIPMENT_CREATED: {
-        const dummyShipment = {
+        const simulatedShipment = {
           id: `GC-${Math.floor(100000 + Math.random() * 900000)}-AP`,
           trackingNumber: `GC-${Math.floor(100000 + Math.random() * 900000)}-AP`,
           senderName: 'Tokyo Robotics & Automation Co',
@@ -127,7 +127,7 @@ export function NotificationProvider({ children }) {
           parcelType: 'Semiconductor Sensors',
           deliveryStatus: 'Pending',
         }
-        notifyShipmentCreated(dummyShipment)
+        notifyShipmentCreated(simulatedShipment)
         break
       }
       case NOTIFICATION_TYPES.STATUS_UPDATE: {

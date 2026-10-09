@@ -1,11 +1,11 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/common/Navbar'
 import StatusBadge from '../components/common/StatusBadge'
 import StatusUpdateModal from '../components/status/StatusUpdateModal'
 import BatchStatusModal from '../components/status/BatchStatusModal'
 import StatusHistoryModal from '../components/status/StatusHistoryModal'
-import { getLocalShipments } from '../services/shipmentApi'
+import { getLocalShipments, fetchShipments } from '../services/shipmentApi'
 import {
   DELIVERY_STATUS_LIST,
   updateDeliveryStatus,
@@ -43,6 +43,19 @@ export default function DeliveryStatusPage() {
   const [sortOrder, setSortOrder] = useState('desc') // 'desc' | 'asc'
   const [selectedCodes, setSelectedCodes] = useState([])
   const [copiedCode, setCopiedCode] = useState(null)
+
+  // Load fresh API shipments on mount
+  useEffect(() => {
+    let ignore = false
+    fetchShipments().then((res) => {
+      if (!ignore && res?.data) {
+        setShipments(res.data)
+      }
+    })
+    return () => {
+      ignore = true
+    }
+  }, [])
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)

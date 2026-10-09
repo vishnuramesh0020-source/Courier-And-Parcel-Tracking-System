@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
 import Navbar from '../components/common/Navbar'
 import StatCard from '../components/dashboard/StatCard'
@@ -16,6 +17,7 @@ import {
 import {
   getStoredCustomers,
   createCustomer,
+  fetchCustomers,
 } from '../services/customerService'
 import {
   getAllStatusHistory,
@@ -37,6 +39,7 @@ const TODAY_ISO = new Date().toISOString().split('T')[0]
 
 export default function DashboardPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
 
   // 1. Core State loaded from API & Storage
   const [shipments, setShipments] = useState(() => getLocalShipments())
@@ -95,10 +98,48 @@ export default function DashboardPage() {
   // 4. Initial load with Third-Party API
   useEffect(() => {
     let ignore = false
-    fetchShipments()
-      .then((res) => {
-        if (!ignore && res?.data) {
-          setShipments(res.data)
+    Promise.all([fetchShipments(), fetchCustomers()])
+      .then(([shipRes, custRes]) => {
+        if (!ignore) {
+          if (shipRes?.data) {
+            setShipments(shipRes.data)
+            // Update initial feed with fetched API shipments
+            const history = getAllStatusHistory()
+            const newFeed = []
+            history.forEach((h, idx) => {
+              newFeed.push({
+                id: h.id || `act-hist-${idx}`,
+                title: `Consignment ${h.toStatus}: ${h.trackingNumber}`,
+                trackingId: h.trackingNumber,
+                type: h.toStatus === 'Delivered' ? 'delivery' : 'shipment',
+                status: h.toStatus,
+                location: h.location,
+                actor: h.operator || 'Dispatcher',
+                timestamp: h.timestamp || 'Recent',
+                date: 'Today',
+              })
+            })
+            shipRes.data.forEach((s, idx) => {
+              const alreadyHasStatus = history.some((h) => h.trackingNumber === s.trackingNumber)
+              if (!alreadyHasStatus) {
+                newFeed.push({
+                  id: `act-ship-${s.id || idx}`,
+                  title: `Shipment ${s.deliveryStatus}: ${s.senderName} → ${s.receiverName}`,
+                  trackingId: s.trackingNumber || s.id,
+                  type: s.deliveryStatus === 'Delivered' ? 'delivery' : 'shipment',
+                  status: s.deliveryStatus || 'In Transit',
+                  location: `${s.pickupAddress?.split(',')[0] || 'Origin'} → ${s.deliveryAddress?.split(',')[0] || 'Destination'}`,
+                  actor: s.carrier || 'Global Courier',
+                  timestamp: s.shippingDate || 'Recent',
+                  date: 'Today',
+                })
+              }
+            })
+            setActivities(newFeed.slice(0, 5))
+          }
+          if (custRes?.data) {
+            setCustomers(custRes.data)
+          }
         }
       })
       .catch((err) => {
@@ -116,13 +157,17 @@ export default function DashboardPage() {
   const handleManualSync = async () => {
     try {
       setIsApiSyncing(true)
-      const res = await fetchShipments()
+      const [res, custRes] = await Promise.all([fetchShipments(), fetchCustomers()])
       if (res && res.data) {
         setShipments(res.data)
       }
 
-      const custList = getStoredCustomers()
-      setCustomers(custList)
+      if (custRes && custRes.data) {
+        setCustomers(custRes.data)
+      } else {
+        const custList = getStoredCustomers()
+        setCustomers(custList)
+      }
 
       // Refresh activities with latest real data
       const history = getAllStatusHistory()
@@ -370,6 +415,9 @@ export default function DashboardPage() {
     document.body.removeChild(link)
 
     toast.success(`Audited manifest with ${shipments.length} consignments exported as CSV!`)
+    setTimeout(() => {
+      navigate('/reports')
+    }, 600)
   }
 
   return (

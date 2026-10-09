@@ -5,8 +5,8 @@ import { notifyShipmentCreated } from './notificationService'
 const API_BASE_URL = 'https://jsonplaceholder.typicode.com'
 
 export const STORAGE_KEYS = {
-  SHIPMENTS: 'global_connect_shipments_v1',
-  SHIPMENTS_INITIALIZED: 'global_connect_shipments_initialized',
+  SHIPMENTS: 'global_connect_shipments_v3',
+  SHIPMENTS_INITIALIZED: 'global_connect_shipments_initialized_v3',
 }
 
 // Helper to generate unique realistic tracking number
@@ -17,223 +17,165 @@ export const generateTrackingNumber = (region = 'GL') => {
   return `GC-${randomNum}-${selectedRegion}`
 }
 
-// Initial realistic shipments seed dataset
-export const INITIAL_SHIPMENTS = [
-  {
-    id: 'GC-948210-US',
-    trackingNumber: 'GC-948210-US',
-    senderName: 'NovaTech Avionics Inc',
-    receiverName: 'Global Micro Systems Ltd',
-    pickupAddress: '350 5th Avenue, Suite 4200, New York, NY 10118, USA',
-    deliveryAddress: '100 Bishopsgate, Level 18, London EC2N 4AG, United Kingdom',
-    parcelWeight: 14.5,
-    parcelType: 'Electronics',
-    shippingDate: '2026-10-01',
-    expectedDeliveryDate: '2026-10-06',
-    deliveryStatus: 'In Transit',
-    carrier: 'Global Air Cargo',
-    progress: 70,
-    currentLocation: 'Mid-Atlantic Air Corridor (FL380)',
-    notes: 'High-priority semiconductor equipment. Temperature controlled.',
-  },
-  {
-    id: 'GC-839201-EU',
-    trackingNumber: 'GC-839201-EU',
-    senderName: 'Frankfurt Precision Engineering',
-    receiverName: 'Al-Mansoor Logistics Holdings',
-    pickupAddress: 'Westhafen Tower, Speicherstraße 55, 60327 Frankfurt, Germany',
-    deliveryAddress: 'Sheikh Zayed Road, DIFC Precinct 4, Dubai, UAE',
-    parcelWeight: 38.2,
-    parcelType: 'Heavy Freight',
-    shippingDate: '2026-10-02',
-    expectedDeliveryDate: '2026-10-05',
-    deliveryStatus: 'Out for Delivery',
-    carrier: 'Express Overland & Air',
-    progress: 92,
-    currentLocation: 'Dubai Cargo Terminal 2',
-    notes: 'Industrial replacement turbine components.',
-  },
-  {
-    id: 'GC-721094-AP',
-    trackingNumber: 'GC-721094-AP',
-    senderName: 'Tokyo Robotics & Automation Co',
-    receiverName: 'Pacific Silicon Labs LLC',
-    pickupAddress: 'Roppongi Hills Mori Tower, Minato City, Tokyo 106-6108, Japan',
-    deliveryAddress: '450 Mission Street, Suite 900, San Francisco, CA 94105, USA',
-    parcelWeight: 8.4,
-    parcelType: 'Electronics',
-    shippingDate: '2026-09-28',
-    expectedDeliveryDate: '2026-10-03',
-    deliveryStatus: 'Delivered',
-    carrier: 'Pacific Priority Cargo',
-    progress: 100,
-    currentLocation: 'Delivered to Reception (Signed by M. Vance)',
-    notes: 'Sensor prototypes and calibration kits.',
-  },
-  {
-    id: 'GC-610942-SA',
-    trackingNumber: 'GC-610942-SA',
-    senderName: 'Amazonia Bio-Labs SA',
-    receiverName: 'Iberia Pharmaceutical Research',
-    pickupAddress: 'Avenida Paulista 1374, Bela Vista, São Paulo, SP 01310-100, Brazil',
-    deliveryAddress: 'Paseo de la Castellana 259, 28046 Madrid, Spain',
-    parcelWeight: 6.2,
-    parcelType: 'Medical Supplies',
-    shippingDate: '2026-10-03',
-    expectedDeliveryDate: '2026-10-08',
-    deliveryStatus: 'Failed Delivery',
-    carrier: 'Atlantic Logistics',
-    progress: 85,
-    currentLocation: 'Madrid Barajas Dispatch Gate (Consignee Closed)',
-    statusReason: 'Consignee unavailable / Business premises closed',
-    notes: 'Re-delivery attempt queued for morning courier cycle.',
-  },
-  {
-    id: 'GC-552018-UK',
-    trackingNumber: 'GC-552018-UK',
-    senderName: 'Cambridge Diagnostic Instruments',
-    receiverName: 'Southern Cross Health Sciences',
-    pickupAddress: 'Cambridge Science Park, Milton Road, Cambridge CB4 0GF, UK',
-    deliveryAddress: '100 Barangaroo Avenue, Tower 1, Sydney NSW 2000, Australia',
-    parcelWeight: 12.0,
-    parcelType: 'Fragile',
-    shippingDate: '2026-10-02',
-    expectedDeliveryDate: '2026-10-07',
-    deliveryStatus: 'Picked Up',
-    carrier: 'Global Air Cargo',
-    progress: 30,
-    currentLocation: 'Cambridge Express Logistics Bay',
-    notes: 'Fragile optical calibration lenses. Collected from shipper.',
-  },
-  {
-    id: 'GC-441920-US',
-    trackingNumber: 'GC-441920-US',
-    senderName: 'Apex Legal & Financial Counsel',
-    receiverName: 'Zurich Trust & Wealth Management',
-    pickupAddress: '100 Wall Street, 14th Floor, New York, NY 10005, USA',
-    deliveryAddress: 'Bahnhofstrasse 45, 8001 Zürich, Switzerland',
-    parcelWeight: 1.2,
-    parcelType: 'Document',
-    shippingDate: '2026-10-04',
-    expectedDeliveryDate: '2026-10-07',
-    deliveryStatus: 'In Transit',
-    carrier: 'Diplomatic Courier Express',
-    progress: 45,
-    currentLocation: 'JFK Outbound Air Freight Facility',
-    notes: 'Confidential corporate merger manifests. Tamper-evident seal.',
-  },
-  {
-    id: 'GC-331825-EU',
-    trackingNumber: 'GC-331825-EU',
-    senderName: 'Nordic Pharma Nordic AS',
-    receiverName: 'Montreal BioTech Institute',
-    pickupAddress: 'Karenslyst Allé 9, 0278 Oslo, Norway',
-    deliveryAddress: '1000 Rue de la Gauchetière, Montréal, QC H3B 4W5, Canada',
-    parcelWeight: 4.8,
-    parcelType: 'Medical Supplies',
-    shippingDate: '2026-10-05',
-    expectedDeliveryDate: '2026-10-09',
-    deliveryStatus: 'Pending',
-    carrier: 'Nordic Express Line',
-    progress: 15,
-    currentLocation: 'Oslo Cargo Staging Area',
-    notes: 'Scheduled for ground courier pickup at 14:00 CET.',
-  },
-  {
-    id: 'GC-221710-AP',
-    trackingNumber: 'GC-221710-AP',
-    senderName: 'Singapore Marine Logistics Pte',
-    receiverName: 'Port of Rotterdam Logistics BV',
-    pickupAddress: '79 Anson Road, #12-01, Singapore 079906',
-    deliveryAddress: 'Wilhelminakade 905, 3072 AP Rotterdam, Netherlands',
-    parcelWeight: 24.0,
-    parcelType: 'Standard Box',
-    shippingDate: '2026-09-27',
-    expectedDeliveryDate: '2026-10-02',
-    deliveryStatus: 'Delivered',
-    carrier: 'Pacific Priority Cargo',
-    progress: 100,
-    currentLocation: 'Delivered to Warehouse Bay 4 (Signed by J. de Jong)',
-    notes: 'Marine telemetry transponders.',
-  },
-  {
-    id: 'GC-110650-UK',
-    trackingNumber: 'GC-110650-UK',
-    senderName: 'Edinburgh Artisan Goods Ltd',
-    receiverName: 'Highland Trading Vancouver',
-    pickupAddress: '12 George Street, Edinburgh EH2 2PF, United Kingdom',
-    deliveryAddress: '555 Burrard Street, Vancouver, BC V7X 1M8, Canada',
-    parcelWeight: 18.5,
-    parcelType: 'Perishable',
-    shippingDate: '2026-10-03',
-    expectedDeliveryDate: '2026-10-08',
-    deliveryStatus: 'Cancelled',
-    carrier: 'Atlantic Logistics',
-    progress: 0,
-    currentLocation: 'London Heathrow Terminal 4 Cargo',
-    statusReason: 'Shipper requested consignment cancellation',
-    notes: 'Order voided prior to transcontinental cargo loading.',
-  },
-  {
-    id: 'GC-990540-US',
-    trackingNumber: 'GC-990540-US',
-    senderName: 'Austin Semiconductor Foundry',
-    receiverName: 'Hsinchu Tech Industrial Park',
-    pickupAddress: '7000 Tech Ridge Blvd, Austin, TX 78753, USA',
-    deliveryAddress: 'No. 1, Innovation 1st Rd, Hsinchu City, Taiwan 300',
-    parcelWeight: 11.4,
-    parcelType: 'Electronics',
-    shippingDate: '2026-09-29',
-    expectedDeliveryDate: '2026-10-04',
-    deliveryStatus: 'Delivered',
-    carrier: 'Global Air Cargo',
-    progress: 100,
-    currentLocation: 'Delivered to Fab Receiving (Signed by K. Chen)',
-    notes: 'Sensitive silicon wafers. Cleanroom handling required.',
-  },
-  {
-    id: 'GC-880430-EU',
-    trackingNumber: 'GC-880430-EU',
-    senderName: 'Milan High-Fashion Export Srl',
-    receiverName: 'Fifth Avenue Luxury Retailing',
-    pickupAddress: 'Via Montenapoleone 8, 20121 Milano, Italy',
-    deliveryAddress: '725 5th Ave, New York, NY 10022, USA',
-    parcelWeight: 15.2,
-    parcelType: 'Standard Box',
-    shippingDate: '2026-10-04',
-    expectedDeliveryDate: '2026-10-09',
-    deliveryStatus: 'Picked Up',
-    carrier: 'Express Overland & Air',
-    progress: 30,
-    currentLocation: 'Milan Malpensa Hub (MXP)',
-    notes: 'Autumn luxury runway samples.',
-  },
-  {
-    id: 'GC-770320-SA',
-    trackingNumber: 'GC-770320-SA',
-    senderName: 'Bogota Specialty Agricultural Exporters',
-    receiverName: 'Berlin Gourmet Roasters GmbH',
-    pickupAddress: 'Carrera 7 No. 71-21, Bogotá, Colombia',
-    deliveryAddress: 'Friedrichstraße 185, 10117 Berlin, Germany',
-    parcelWeight: 45.0,
-    parcelType: 'Perishable',
-    shippingDate: '2026-10-02',
-    expectedDeliveryDate: '2026-10-07',
-    deliveryStatus: 'In Transit',
-    carrier: 'Atlantic Logistics',
-    progress: 65,
-    currentLocation: 'Bogota El Dorado Freight Hub (BOG)',
-    notes: 'Vacuum-sealed micro-lot harvest.',
-  },
-]
+// Empty fallback array - all data is loaded from the Third-Party API
+export const INITIAL_SHIPMENTS = []
+
+/**
+ * Transform real JSONPlaceholder posts & users into live Courier & Parcel tracking shipments
+ */
+export const transformApiPostToShipment = (post, userMap = {}) => {
+  const user = userMap[post.userId] || {
+    name: 'Enterprise Client',
+    company: { name: 'Logistics Partner' },
+    address: { street: 'Main Commercial Ave', city: 'New York', zipcode: '10001' },
+  }
+
+  const trackingNumber = `GC-${String(100000 + post.id * 1847).slice(0, 6)}-${['US', 'EU', 'AP', 'UK', 'SA', 'GL'][post.id % 6]}`
+
+  // Distribute naturally across all 12 months (Jan - Dec)
+  const monthWeights = [6, 7, 8, 7, 9, 8, 9, 8, 10, 11, 9, 8] // Sum = 100 posts
+  let cumulative = 0
+  let monthIdx = 11
+  for (let m = 0; m < 12; m++) {
+    cumulative += monthWeights[m]
+    if (post.id <= cumulative) {
+      monthIdx = m
+      break
+    }
+  }
+  const monthNum = monthIdx + 1
+  const monthStr = monthNum < 10 ? `0${monthNum}` : `${monthNum}`
+  const dayOffset = ((post.id * 3) % 25) + 1
+  const shipDay = dayOffset < 10 ? `0${dayOffset}` : `${dayOffset}`
+  const etaOffset = Math.min(28, dayOffset + 3)
+  const etaDay = etaOffset < 10 ? `0${etaOffset}` : `${etaOffset}`
+
+  // Status lifecycle across the 12 months:
+  // - Months 1..9 (Jan - Sep): Completed deliveries with realistic exceptions
+  // - Month 10 (Oct): Current active operations (in transit, out for delivery, delivered, pending)
+  // - Months 11..12 (Nov - Dec): Advance scheduled bookings / pending dispatch
+  let status = 'Delivered'
+  if (monthNum < 10) {
+    status = post.id % 13 === 0 ? 'Failed Delivery' : 'Delivered'
+  } else if (monthNum === 10) {
+    const octStatuses = [
+      'In Transit',
+      'Out for Delivery',
+      'Delivered',
+      'Pending',
+      'Delivered',
+      'In Transit',
+      'Delivered',
+      'Out for Delivery',
+      'Pending',
+      'Delivered',
+      'Failed Delivery',
+    ]
+    status = octStatuses[(post.id - 1) % octStatuses.length]
+  } else {
+    const futureStatuses = [
+      'Pending',
+      'Pending',
+      'Picked Up',
+      'Pending',
+      'Picked Up',
+      'Pending',
+      'Pending',
+      'Picked Up',
+    ]
+    status = futureStatuses[(post.id - 1) % futureStatuses.length]
+  }
+
+  const progressMap = {
+    Delivered: 100,
+    'Out for Delivery': 92,
+    'Failed Delivery': 85,
+    'In Transit': 65,
+    'Picked Up': 30,
+    Pending: 15,
+    Cancelled: 0,
+  }
+
+  const carriers = [
+    'Global Air Cargo',
+    'Express Overland & Air',
+    'Pacific Priority Cargo',
+    'Atlantic Logistics',
+  ]
+  const carrier = carriers[post.userId % carriers.length]
+
+  const parcelTypes = ['Electronics', 'Heavy Freight', 'Medical Supplies', 'Fragile', 'Standard Box']
+  const parcelType = parcelTypes[post.id % parcelTypes.length]
+
+  const weight = Number(((post.id * 3.7) % 36 + 2.5).toFixed(1))
+
+  const words = (post.title || '').split(' ')
+  const receiverOrg =
+    words
+      .slice(0, 3)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ') + ' Corp'
+
+  const cities = [
+    'New York',
+    'London',
+    'Frankfurt',
+    'Dubai',
+    'Tokyo',
+    'San Francisco',
+    'São Paulo',
+    'Madrid',
+    'Singapore',
+    'Sydney',
+  ]
+  const originCity = user.address?.city || cities[post.userId % cities.length]
+  const destCity = cities[(post.id + 3) % cities.length]
+
+  return {
+    id: trackingNumber,
+    apiPostId: post.id,
+    trackingNumber,
+    senderName: user.company?.name || user.name || 'Commercial Shipper',
+    receiverName: receiverOrg,
+    pickupAddress: `${user.address?.street || 'Port Gateway'}, ${originCity}, ${user.address?.zipcode || '10001'}`,
+    deliveryAddress: `Logistics Gateway Suite ${(post.id * 14) % 900 + 100}, ${destCity}`,
+    parcelWeight: weight,
+    parcelType,
+    shippingDate: `2026-${monthStr}-${shipDay}`,
+    expectedDeliveryDate: `2026-${monthStr}-${etaDay}`,
+    deliveryStatus: status,
+    carrier,
+    progress: progressMap[status] || 50,
+    currentLocation:
+      status === 'Delivered'
+        ? `Delivered to Receiving Desk (${destCity})`
+        : `${originCity} → ${destCity} Air Hub Corridor`,
+    notes: (post.body || '').replace(/\n/g, ' ').slice(0, 90) + '...',
+    source: 'Third-Party API (JSONPlaceholder Live Posts)',
+  }
+}
 
 // Read from LocalStorage cache
 export const getLocalShipments = () => {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SHIPMENTS)
     if (!raw) {
-      localStorage.setItem(STORAGE_KEYS.SHIPMENTS, JSON.stringify(INITIAL_SHIPMENTS))
-      return INITIAL_SHIPMENTS
+      try {
+        const oldRaw =
+          localStorage.getItem('global_connect_shipments_v2') ||
+          localStorage.getItem('global_connect_shipments_v1')
+        if (oldRaw) {
+          const oldList = JSON.parse(oldRaw)
+          const userCreated = oldList.filter((s) => s.isUserCreated)
+          if (userCreated.length > 0) {
+            localStorage.setItem(STORAGE_KEYS.SHIPMENTS, JSON.stringify(userCreated))
+            return userCreated
+          }
+        }
+      } catch {
+        // ignore
+      }
+      return []
     }
     const parsed = JSON.parse(raw)
     let modified = false
@@ -250,7 +192,7 @@ export const getLocalShipments = () => {
     return normalized
   } catch (error) {
     console.error('Failed to read shipments from localStorage:', error)
-    return INITIAL_SHIPMENTS
+    return []
   }
 }
 
@@ -273,36 +215,41 @@ export const getStoredShipments = getLocalShipments
  */
 export const fetchShipments = async () => {
   try {
-    // Real Third-Party API Call
-    const response = await axios.get(`${API_BASE_URL}/posts?_limit=10`, {
-      timeout: 8000,
-    })
+    // 1. Live Third-Party API Calls (JSONPlaceholder /posts and /users)
+    const [postsRes, usersRes] = await Promise.all([
+      axios.get(`${API_BASE_URL}/posts`, { timeout: 8000 }),
+      axios.get(`${API_BASE_URL}/users`, { timeout: 8000 }).catch(() => ({ data: [] })),
+    ])
 
-    const localData = getLocalShipments()
-    const isInitialized = localStorage.getItem(STORAGE_KEYS.SHIPMENTS_INITIALIZED)
-
-    // If first time, combine API seeds with our rich courier dataset
-    if (!isInitialized) {
-      localStorage.setItem(STORAGE_KEYS.SHIPMENTS_INITIALIZED, 'true')
-      saveLocalShipments(INITIAL_SHIPMENTS)
-      return {
-        data: INITIAL_SHIPMENTS,
-        source: 'Third-Party API (JSONPlaceholder Synchronized)',
-        apiStatus: response.status,
-      }
+    const userMap = {}
+    if (Array.isArray(usersRes.data)) {
+      usersRes.data.forEach((u) => {
+        userMap[u.id] = u
+      })
     }
 
+    const apiShipments = Array.isArray(postsRes.data)
+      ? postsRes.data.map((post) => transformApiPostToShipment(post, userMap))
+      : []
+
+    // Preserve any user-created shipments created during this session
+    const currentCached = getLocalShipments()
+    const userCreated = currentCached.filter((s) => s.isUserCreated)
+    const merged = [...userCreated, ...apiShipments]
+
+    saveLocalShipments(merged)
+
     return {
-      data: localData,
-      source: 'Third-Party API (JSONPlaceholder Synchronized)',
-      apiStatus: response.status,
+      data: merged,
+      source: 'Third-Party API (JSONPlaceholder Live Posts & Users)',
+      apiStatus: postsRes.status,
     }
   } catch (error) {
-    console.warn('Third-party API request fallback to local storage cache:', error.message)
+    console.warn('Third-party API request fallback to local cache:', error.message)
     const localData = getLocalShipments()
     return {
       data: localData,
-      source: 'Local Storage Cache (Offline Resilient)',
+      source: 'Local Cache (Offline Resilient)',
       apiStatus: 200,
     }
   }
@@ -312,19 +259,22 @@ export const fetchShipments = async () => {
  * 2. GET SINGLE SHIPMENT BY ID OR TRACKING NUMBER
  */
 export const fetchShipmentById = async (idOrTracking) => {
-  try {
-    // Also ping third-party API
-    await axios.get(`${API_BASE_URL}/posts/1`, { timeout: 5000 })
-  } catch {
-    // Continue with local resolution
-  }
-
-  const shipments = getLocalShipments()
-  const matched = shipments.find(
+  let shipments = getLocalShipments()
+  let matched = shipments.find(
     (s) =>
       s.id?.toLowerCase() === idOrTracking?.toLowerCase() ||
       s.trackingNumber?.toLowerCase() === idOrTracking?.toLowerCase()
   )
+
+  if (!matched) {
+    const res = await fetchShipments()
+    shipments = res.data || []
+    matched = shipments.find(
+      (s) =>
+        s.id?.toLowerCase() === idOrTracking?.toLowerCase() ||
+        s.trackingNumber?.toLowerCase() === idOrTracking?.toLowerCase()
+    )
+  }
 
   if (!matched) {
     throw new Error(`Shipment with tracking identifier '${idOrTracking}' was not found.`)
@@ -345,9 +295,11 @@ export const createShipment = async (shipmentData) => {
     id: trackingNumber,
     trackingNumber,
     parcelWeight: Number(shipmentData.parcelWeight) || 1.0,
-    deliveryStatus: shipmentData.deliveryStatus || 'Pending Pickup',
+    deliveryStatus: shipmentData.deliveryStatus || 'Pending',
     progress: shipmentData.deliveryStatus === 'Delivered' ? 100 : 15,
     createdAt: new Date().toISOString(),
+    isUserCreated: true,
+    source: 'Third-Party API (JSONPlaceholder POST Confirmed)',
   }
 
   try {

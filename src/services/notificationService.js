@@ -15,104 +15,94 @@ export const NOTIFICATION_PRIORITIES = {
   INFO: 'INFO',
 }
 
-export const INITIAL_NOTIFICATIONS = [
-  {
-    id: 'NOTIF-1',
-    type: NOTIFICATION_TYPES.FAILED_DELIVERY,
-    title: 'Failed Delivery Alert: Consignment Held',
-    message: 'Delivery attempt failed for GC-610942-SA in Madrid. Reason: Consignee unavailable / Business premises closed.',
-    trackingNumber: 'GC-610942-SA',
-    priority: NOTIFICATION_PRIORITIES.CRITICAL,
-    timestamp: '2026-10-08 09:45:12 UTC',
-    isRead: false,
-    metadata: {
-      location: 'Madrid Barajas Dispatch Gate',
-      recipient: 'Iberia Pharmaceutical Research',
-      reason: 'Consignee unavailable / Business premises closed',
-      currentStatus: 'Failed Delivery',
-    },
-  },
-  {
-    id: 'NOTIF-2',
-    type: NOTIFICATION_TYPES.DELIVERY_COMPLETED,
-    title: 'Delivery Completed Successfully',
-    message: 'Consignment GC-721094-AP was delivered and signed by M. Vance in San Francisco, CA.',
-    trackingNumber: 'GC-721094-AP',
-    priority: NOTIFICATION_PRIORITIES.SUCCESS,
-    timestamp: '2026-10-08 08:30:00 UTC',
-    isRead: false,
-    metadata: {
-      location: 'San Francisco, CA',
-      recipient: 'Pacific Silicon Labs LLC',
-      signedBy: 'M. Vance',
-      currentStatus: 'Delivered',
-    },
-  },
-  {
-    id: 'NOTIF-3',
-    type: NOTIFICATION_TYPES.STATUS_UPDATE,
-    title: 'Delivery Status Update: Out for Delivery',
-    message: 'Shipment GC-839201-EU transitioned to Out for Delivery at Dubai Cargo Terminal 2.',
-    trackingNumber: 'GC-839201-EU',
-    priority: NOTIFICATION_PRIORITIES.UPDATE,
-    timestamp: '2026-10-08 07:15:20 UTC',
-    isRead: false,
-    metadata: {
-      newStatus: 'Out for Delivery',
-      previousStatus: 'In Transit',
-      location: 'Dubai Cargo Terminal 2',
-      currentStatus: 'Out for Delivery',
-    },
-  },
-  {
-    id: 'NOTIF-4',
-    type: NOTIFICATION_TYPES.SHIPMENT_CREATED,
-    title: 'New Shipment Initialized',
-    message: 'Consignment GC-948210-US registered by NovaTech Avionics Inc destined for Global Micro Systems Ltd.',
-    trackingNumber: 'GC-948210-US',
-    priority: NOTIFICATION_PRIORITIES.INFO,
-    timestamp: '2026-10-07 14:20:00 UTC',
-    isRead: true,
-    metadata: {
-      sender: 'NovaTech Avionics Inc',
-      recipient: 'Global Micro Systems Ltd',
-      origin: 'New York, NY, USA',
-      destination: 'London, United Kingdom',
-      currentStatus: 'In Transit',
-    },
-  },
-  {
-    id: 'NOTIF-5',
-    type: NOTIFICATION_TYPES.STATUS_UPDATE,
-    title: 'Delivery Status Update: In Transit',
-    message: 'Consignment GC-552018-UK departed Heathrow Air Corridor en route to Sydney.',
-    trackingNumber: 'GC-552018-UK',
-    priority: NOTIFICATION_PRIORITIES.UPDATE,
-    timestamp: '2026-10-07 11:05:00 UTC',
-    isRead: true,
-    metadata: {
-      newStatus: 'In Transit',
-      previousStatus: 'Picked Up',
-      location: 'Heathrow Air Corridor (FL360)',
-      currentStatus: 'In Transit',
-    },
-  },
-]
+export const INITIAL_NOTIFICATIONS = []
 
 /**
- * Read all notifications from localStorage
+ * Dynamically generate audit notifications from live API shipments
+ */
+export const generateNotificationsFromShipments = (shipments = []) => {
+  const generated = []
+
+  if (Array.isArray(shipments)) {
+    shipments.forEach((s, idx) => {
+      if (s.deliveryStatus === 'Failed Delivery') {
+        generated.push({
+          id: `notif-fail-${s.id || idx}`,
+          type: NOTIFICATION_TYPES.FAILED_DELIVERY,
+          title: 'Failed Delivery Alert: Consignment Held',
+          message: `Delivery attempt failed for ${s.trackingNumber || s.id}. Consignee location exception reported.`,
+          trackingNumber: s.trackingNumber || s.id,
+          priority: NOTIFICATION_PRIORITIES.CRITICAL,
+          timestamp: s.shippingDate ? `${s.shippingDate} 09:45:12 UTC` : new Date().toISOString(),
+          isRead: false,
+          metadata: {
+            location: s.currentLocation || 'Dispatch Terminal',
+            recipient: s.receiverName,
+            reason: s.notes || 'Consignee unavailable / Premises closed',
+            currentStatus: 'Failed Delivery',
+          },
+        })
+      } else if (s.deliveryStatus === 'Delivered') {
+        generated.push({
+          id: `notif-del-${s.id || idx}`,
+          type: NOTIFICATION_TYPES.DELIVERY_COMPLETED,
+          title: 'Delivery Completed Successfully',
+          message: `Consignment ${s.trackingNumber || s.id} was delivered and signed by consignee.`,
+          trackingNumber: s.trackingNumber || s.id,
+          priority: NOTIFICATION_PRIORITIES.SUCCESS,
+          timestamp: s.shippingDate ? `${s.shippingDate} 08:30:00 UTC` : new Date().toISOString(),
+          isRead: false,
+          metadata: {
+            location: s.deliveryAddress,
+            recipient: s.receiverName,
+            currentStatus: 'Delivered',
+          },
+        })
+      } else if (s.deliveryStatus === 'Out for Delivery' || s.deliveryStatus === 'In Transit') {
+        generated.push({
+          id: `notif-stat-${s.id || idx}`,
+          type: NOTIFICATION_TYPES.STATUS_UPDATE,
+          title: `Delivery Status Update: ${s.deliveryStatus}`,
+          message: `Shipment ${s.trackingNumber || s.id} is actively ${s.deliveryStatus} via ${s.carrier || 'Global Express'}.`,
+          trackingNumber: s.trackingNumber || s.id,
+          priority: NOTIFICATION_PRIORITIES.UPDATE,
+          timestamp: s.shippingDate ? `${s.shippingDate} 11:05:00 UTC` : new Date().toISOString(),
+          isRead: true,
+          metadata: {
+            newStatus: s.deliveryStatus,
+            location: s.currentLocation,
+            currentStatus: s.deliveryStatus,
+          },
+        })
+      }
+    })
+  }
+
+  return generated
+}
+
+/**
+ * Read all notifications from localStorage or generate from live API records
  */
 export const getStoredNotifications = () => {
   try {
     const raw = localStorage.getItem(NOTIFICATION_STORAGE_KEY)
     if (!raw) {
-      localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(INITIAL_NOTIFICATIONS))
-      return INITIAL_NOTIFICATIONS
+      let shipments = []
+      try {
+        const rawShipments = localStorage.getItem('global_connect_shipments_v3')
+        if (rawShipments) shipments = JSON.parse(rawShipments)
+      } catch {
+        // empty
+      }
+      const initial = generateNotificationsFromShipments(shipments)
+      localStorage.setItem(NOTIFICATION_STORAGE_KEY, JSON.stringify(initial))
+      return initial
     }
     return JSON.parse(raw)
   } catch (err) {
     console.error('Failed to parse notifications from localStorage:', err)
-    return INITIAL_NOTIFICATIONS
+    return []
   }
 }
 
@@ -215,8 +205,16 @@ export const clearAllNotifications = () => {
  * Reset notifications to initial seed state
  */
 export const resetToDefaultNotifications = () => {
-  saveStoredNotifications(INITIAL_NOTIFICATIONS)
-  return INITIAL_NOTIFICATIONS
+  let shipments = []
+  try {
+    const rawShipments = localStorage.getItem('global_connect_shipments_v3')
+    if (rawShipments) shipments = JSON.parse(rawShipments)
+  } catch {
+    // empty
+  }
+  const fresh = generateNotificationsFromShipments(shipments)
+  saveStoredNotifications(fresh)
+  return fresh
 }
 
 /**

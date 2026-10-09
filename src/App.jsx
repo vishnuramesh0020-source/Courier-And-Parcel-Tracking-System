@@ -12,6 +12,7 @@ import CustomerProfilePage from './pages/CustomerProfilePage'
 import TrackingPage from './pages/TrackingPage'
 import DeliveryStatusPage from './pages/DeliveryStatusPage'
 import NotificationsPage from './pages/NotificationsPage'
+import ReportsPage from './pages/ReportsPage'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 
 export default function App() {
@@ -114,6 +115,15 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <NotificationsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute>
+                <ReportsPage />
               </ProtectedRoute>
             }
           />

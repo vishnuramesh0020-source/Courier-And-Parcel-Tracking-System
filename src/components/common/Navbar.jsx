@@ -14,6 +14,7 @@ import {
   Bell,
   Radar,
   ShieldAlert,
+  BarChart3,
 } from 'lucide-react'
 
 export default function Navbar() {
@@ -30,6 +31,7 @@ export default function Navbar() {
   const isShipments = location.pathname.startsWith('/shipments')
   const isCustomers = location.pathname.startsWith('/customers')
   const isNotifications = location.pathname.startsWith('/notifications')
+  const isReports = location.pathname.startsWith('/reports')
 
   return (
     <header className="border-b border-cyan-500/30 bg-[#091526]/95 backdrop-blur-md sticky top-0 z-30 shadow-[0_4px_30px_rgba(0,0,0,0.4)]">
@@ -125,6 +127,17 @@ export default function Navbar() {
                 {unreadCount}
               </span>
             )}
+          </Link>
+          <Link
+            to="/reports"
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+              isReports
+                ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 shadow-[0_0_12px_rgba(6,182,212,0.3)]'
+                : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5" />
+            <span>Reports</span>
           </Link>
         </nav>
 
@@ -260,6 +273,17 @@ export default function Navbar() {
           {unreadCount > 0 && (
             <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
           )}
+        </Link>
+        <Link
+          to="/reports"
+          className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 transition-all ${
+            isReports
+              ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40'
+              : 'text-slate-400'
+          }`}
+        >
+          <BarChart3 className="w-3 h-3" />
+          <span>Reports</span>
         </Link>
       </div>
     </header>
